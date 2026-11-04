@@ -1,9 +1,15 @@
+"""Generate answers from cached transcripts (no ASR), logging extra fields."""
 from pathlib import Path
 import sys
 ROOT = Path(__file__).resolve().parents[1]      # the rag/ folder
 sys.path.insert(0, str(ROOT))
 import argparse
 import json
+import time
+from src.data import CourseData
+from src.encoder import LocalEncoder
+from src.retriever import ExactDenseRetriever
+from src.context_builder import SimpleContextBuilder
 
 def load_cache(path: Path):
     cache = {}
@@ -31,7 +37,6 @@ def main():
 
     cache = load_cache(args.transcript_cache)
     
-    from src.data import CourseData
     data_dir = ROOT / "data/rag_corpus"
     data = CourseData(data_dir)
     items = data.audio_items(args.split)
@@ -40,7 +45,30 @@ def main():
     if missing:
         sys.exit(f"Missing from cache: {len(missing)} queries, e.g. {missing[:3]}")
 
-    print(f"All {len(items)} {args.split} queries found in the cache.")
+    if args.limit:
+        items = items[:args.limit]
+
+    encoder = LocalEncoder(ROOT / "models/enc_a", device=args.device)
+    retriever = ExactDenseRetriever(
+        data_dir / "embeddings/corpus_enc_a.npy",
+        data_dir / "embeddings/corpus_enc_a_ids.json",
+    )
+    builder = SimpleContextBuilder()
+
+    for item in items:
+        qid = item["query_id"]
+        transcript = cache[qid]
+
+        t0 = time.perf_counter()
+        qvec = encoder.encode(transcript)
+        embedding_ms = (time.perf_counter() - t0) * 1000.0
+
+        ret = retriever.retrieve(qvec, k=args.k)
+        built = builder.build(transcript, ret["record_ids"], data)
+        prompt_chars = len(built["prompt"])
+
+        print(qid, len(ret["record_ids"]), "records,", prompt_chars, "chars,",
+            round(embedding_ms, 1), "ms_embed,", round(ret["latency_ms"], 1), "ms retrieve")
 
 if __name__ == "__main__":
     main()
