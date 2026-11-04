@@ -16,7 +16,7 @@
 #include "asr_kernels.h"
 #include "common.cuh"
 
-constexpr int TILE = 16;  // try 8 or 32 (32 x 32 = 1024 threads, the maximum per block)
+constexpr int TILE = 32;  // try 8 or 32 (32 x 32 = 1024 threads, the maximum per block)
 
 __global__ void linear_tiled_kernel(const float* x, const float* w, const float* bias,
                                     float* y, int M, int N, int K, int act) {
@@ -30,29 +30,42 @@ __global__ void linear_tiled_kernel(const float* x, const float* w, const float*
 
   float acc = 0.0f;
   for (int k0 = 0; k0 < K; k0 += TILE) {
-    // ======================== BLANK 3.1 =========================
-    // Load this thread's element of the x tile into xs. Use 0 outside x.
-    // YOUR CODE HERE
-    // ============================================================
+    // 3.1: load this thread's element of the x tile (0 outside x)
+    if (row < M && k0 + tx < K) {
+      xs[ty][tx] = x[row * K + (k0 + tx)];
+    } else {
+      xs[ty][tx] = 0.0f;
+    }
 
-    // ======================== BLANK 3.2 =========================
-    // Load this thread's element of the w tile, so that ws[n][k] holds
-    // w[blockIdx.x * TILE + n][k0 + k]. Use 0 outside w. Threads with consecutive
-    // tx must read consecutive addresses of w.
-    // YOUR CODE HERE
-    // ============================================================
+    // 3.2: load this thread's element of the w tile; consecutive tx read consecutive k
+    int w_row = blockIdx.x * TILE + ty;
+    int w_col = k0 + tx;
+    if (w_row < N && w_col < K) {
+      ws[ty][tx] = w[w_row * K + w_col];
+    } else {
+      ws[ty][tx] = 0.0f;
+    }
 
-    // ======================== BLANK 3.3 =========================
-    // Add this K step's contribution to acc.
-    // YOUR CODE HERE
-    // ============================================================
+    __syncthreads();  // wait until every thread has loaded both tiles
+
+    // 3.3: this K step's contribution
+    for (int k = 0; k < TILE; k += 1) {
+      acc += xs[ty][k] * ws[tx][k];
+    }
+
+    __syncthreads();  // wait until everyone has used the tiles before they are overwritten
   }
 
-  // ======================== BLANK 3.4 =========================
-  // Epilogue: for outputs inside y, add bias[col] (bias may be nullptr), apply
-  // gelu() when act == ACT_GELU, and store.
-  // YOUR CODE HERE
-  // ============================================================
+  // 3.4: epilogue
+  if (row < M && col < N) {
+    if (bias != nullptr) {
+      acc += bias[col];
+    }
+    if (act == ACT_GELU) {
+      acc = gelu(acc);
+    }
+    y[row * N + col] = acc;
+  }
 }
 
 ASR_API int launch_linear(const float* x, const float* w, const float* bias, float* y,

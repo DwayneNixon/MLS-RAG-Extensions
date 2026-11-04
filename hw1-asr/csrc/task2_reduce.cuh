@@ -14,10 +14,8 @@
 // Sum of v over the 32 lanes of a warp. Every lane gets the total.
 __device__ __forceinline__ float warp_reduce_sum(float v) {
   for (int offset = WARP_SIZE / 2; offset > 0; offset /= 2) {
-    // ======================== BLANK 2.1 =========================
-    // One step of the butterfly sum (see the guide).
-    // YOUR CODE HERE
-    // ============================================================
+    float temporary_float = __shfl_xor_sync(FULL_MASK, v, offset); // Fetching the partner's value.
+    v += temporary_float; // Adding it to v
   }
   return v;
 }
@@ -25,10 +23,8 @@ __device__ __forceinline__ float warp_reduce_sum(float v) {
 // Max of v over the 32 lanes of a warp. Every lane gets the result.
 __device__ __forceinline__ float warp_reduce_max(float v) {
   for (int offset = WARP_SIZE / 2; offset > 0; offset /= 2) {
-    // ======================== BLANK 2.2 =========================
-    // The same for the maximum.
-    // YOUR CODE HERE
-    // ============================================================
+    float temporary_float = __shfl_xor_sync(FULL_MASK, v, offset); // Fetching the partner's value.
+    v = fmaxf(v, temporary_float); // Same thing but now with a max function
   }
   return v;
 }
@@ -58,10 +54,12 @@ __device__ __forceinline__ float block_reduce_max(float v) {
   const int warp = threadIdx.x / WARP_SIZE;
   const int num_warps = blockDim.x / WARP_SIZE;
 
-  // ======================== BLANK 2.3 =========================
-  // Block-wide maximum, built like block_reduce_sum above.
-  // YOUR CODE HERE
-  // ============================================================
+  v = warp_reduce_max(v);
+  if (lane == 0) partial[warp] = v;
+  __syncthreads();
+  v = (lane < num_warps) ? partial[lane] : -INFINITY; // Since we are dealing with negative numbers, the lower barrier should be a low negative number, rather than zero.
+  v = warp_reduce_max(v);
+  __syncthreads();
   return v;
 }
 
@@ -78,10 +76,11 @@ struct MaxSum {
 
 __device__ __forceinline__ MaxSum maxsum_merge(MaxSum a, MaxSum b) {
   MaxSum r = {-INFINITY, 0.0f};
-  // ======================== BLANK 2.4 =========================
-  // Merge a and b with the rule in the guide. Merging two empty summaries
-  // ({-INFINITY, 0}) must give an empty summary, not NaN.
-  // YOUR CODE HERE
-  // ============================================================
+  r.m = fmaxf(a.m, b.m);
+  if (r.m == -INFINITY) {
+    return r;
+  } // Avoiding the NaN trap as if r.m == -INFINITY, (-INFINITY) - (-INFINITY) = NaN.
+  r.l = a.l * expf(a.m - r.m) + b.l * expf(b.m - r.m);
+  
   return r;
 }

@@ -1,0 +1,7 @@
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   1%|          | 1/199 [00:00<00:52,  3.79it/s]Loading weights: 100%|██████████| 199/199 [00:00<00:00, 612.37it/s]
+This model was loaded in torch.float16 on CPU. Depending on your CPU, inference may be significantly slower than with torch.float32. Consider comparing inference speeds by loading with `model_kwargs={"dtype": torch.float32}`.
+q_7e9a0f2716c017d2
+q_ea0be00eda6ea088
+q_9cd791a970ab648f
+q_20e98c45013f6cc6
+q_e3f1cef46917a2a5

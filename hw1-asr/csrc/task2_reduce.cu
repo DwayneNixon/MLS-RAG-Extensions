@@ -40,32 +40,55 @@ __global__ void rmsnorm_kernel(const float* x, const float* weight, float* y, in
   const float* xr = x + static_cast<size_t>(blockIdx.x) * cols;
   float* yr = y + static_cast<size_t>(blockIdx.x) * cols;
 
-  // ======================== BLANK 2.5 =========================
-  // RMSNorm of this row: y = x / sqrt(mean(x^2) + eps) * weight.
-  // YOUR CODE HERE
-  // ============================================================
+  // Calculating the local sum of squares.
+  float sum_sq = 0.0f;
+  for (int c = threadIdx.x; c < cols; c += blockDim.x) {
+    float x_val = xr[c];
+    sum_sq += x_val * x_val;
+  }
+
+  // Reducing to the block's total and calculate the nromalisation factor.
+  float block_sum_sq = block_reduce_sum(sum_sq);
+  
+  float norm_factor = rsqrtf(block_sum_sq / cols + eps);
+
+  // Writing the final answer to memory
+  for (int c = threadIdx.x; c < cols; c += blockDim.x) {
+    yr[c] = xr[c] * norm_factor * weight[c];
+  }
 }
 
 // Softmax over each row: y = exp(x - max) / sum(exp(x - max)).
 // The textbook version reads the row three times (max, sum, write). With the
 // online-softmax MaxSum from part A, the first two passes become one.
+
 __global__ void softmax_kernel(const float* x, float* y, int cols) {
   const float* xr = x + static_cast<size_t>(blockIdx.x) * cols;
   float* yr = y + static_cast<size_t>(blockIdx.x) * cols;
 
-  float row_max = 0.0f;  // max of the whole row
-  float row_sum = 1.0f;  // sum of exp(x - row_max) over the whole row
-  // ======================== BLANK 2.6 =========================
-  // Pass 1: set row_max and row_sum (the sum of exp(x - row_max) over the row),
-  // reading x only once, with MaxSum.
-  // YOUR CODE HERE
-  // ============================================================
+  // Pass 1: Build each thread's online-softmax summary.
+  MaxSum local = {-INFINITY, 0.0f};
 
-  // ======================== BLANK 2.7 =========================
-  // Pass 2: y = exp(x - row_max) / row_sum.
-  // YOUR CODE HERE
-  // ============================================================
+  for (int c = threadIdx.x; c < cols; c += blockDim.x) {
+    MaxSum elem = {xr[c], 1.0f};
+    local = maxsum_merge(local, elem);
+  }
+
+  // Find the maximum across the whole row.
+  float row_max = block_reduce_max(local.m);
+
+  // Rescale the local sum from its local maximum to row_max.
+  local.l *= expf(local.m - row_max);
+
+  // Find the total exponential sum across the whole row.
+  float row_sum = block_reduce_sum(local.l);
+
+  // Pass 2: Write the normalized output.
+  for (int c = threadIdx.x; c < cols; c += blockDim.x) {
+    yr[c] = expf(xr[c] - row_max) / row_sum;
+  }
 }
+
 
 ASR_API int launch_rmsnorm(const float* x, const float* weight, float* y, int rows,
                            int cols, float eps, cudaStream_t stream) {

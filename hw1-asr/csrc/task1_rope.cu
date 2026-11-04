@@ -30,36 +30,42 @@ __global__ void rope_kernel(float* q, float* k, const float* inv_freq, int seq_l
   const int q_pairs = q_rows * half;
   const int k_pairs = k_rows * half;
 
-  int idx = 0;  // this thread's pair number, counting q's pairs first, then k's
-  // ======================== BLANK 1.1 =========================
-  // Set idx to this thread's global index. Threads without a pair
-  // (q_pairs + k_pairs in total) do nothing.
-  // YOUR CODE HERE
-  // ============================================================
+  int idx = blockIdx.x * blockDim.x + threadIdx.x;  // this thread's pair number, counting q's pairs first, then k's
+  if (idx >= q_pairs + k_pairs) {
+    return;
+  } // We return nothing if idx is greater than the number of pairs of querys and keys
 
-  float* x = q;               // the tensor this thread works on
-  int num_heads = num_q_heads;
-  // ======================== BLANK 1.2 =========================
-  // Threads past q's pairs work on k: make x, num_heads and idx describe the
-  // tensor this thread works on, with idx counting from 0 inside it.
-  // YOUR CODE HERE
-  // ============================================================
+  float* x;
+  int num_heads;
 
-  int row = 0;  // which row (one head of one token) of x
-  int i = 0;    // which pair inside that row, 0 .. half-1
-  int pos = 0;  // position of the token this row belongs to
-  // ======================== BLANK 1.3 =========================
-  // Set row, i (the pair inside the row) and pos (the token position of the row).
-  // YOUR CODE HERE
-  // ============================================================
+  if (idx < q_pairs) {
+      x = q;
+      num_heads = num_q_heads;
+  } else {
+      x = k;
+      num_heads = num_k_heads;
+      idx -= q_pairs; // Reset index relative to k
+  }
 
-  float* v = x + static_cast<size_t>(row) * head_dim;  // start of this row
-  // ======================== BLANK 1.4 =========================
-  // Rotate the pair (v[i], v[i + half]) in place.
-  // YOUR CODE HERE
-  // ============================================================
+  int row = idx / half;  // which row (one head of one token) of x
+  int i = idx % half;    // which pair inside that row, 0 .. half-1
+  int pos = (row / num_heads) % seq_len;  // position of the token this row belongs to
+
+  float angle = pos * inv_freq[i];
+  float cos_a = cosf(angle);
+  float sin_a = sinf(angle);
+
+  // Pointer to the start of this specific row (head of a token)
+  float* v = x + static_cast<size_t>(row) * head_dim;
+
+  // Read elements forming the pair
+  float a = v[i];
+  float b = v[i + half];
+
+  // Rotate pair in place
+  v[i]        = a * cos_a - b * sin_a;
+  v[i + half] = b * cos_a + a * sin_a;
 }
-
 ASR_API int launch_rope(float* q, float* k, const float* inv_freq, int batch, int seq_len,
                         int num_q_heads, int num_k_heads, int head_dim, int rotary_dim,
                         cudaStream_t stream) {
