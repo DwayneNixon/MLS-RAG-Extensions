@@ -10,6 +10,7 @@ from src.data import CourseData
 from src.encoder import LocalEncoder
 from src.retriever import ExactDenseRetriever
 from src.context_builder import SimpleContextBuilder
+from src.generator import ELMGenerator
 
 def load_cache(path: Path):
     cache = {}
@@ -20,6 +21,36 @@ def load_cache(path: Path):
                     row = json.loads(line)
                     cache[row["query_id"]] = row["transcript"]
     return cache
+
+class ELMGeneratorWithUsage(ELMGenerator):
+    """Same as ELMGenerator, but also returns token counts and finish reason."""
+
+    def generate(self, prompt:str):
+        start = time.perf_counter()
+        response = self.client.chat.completions.create(
+            model = self.model,
+            messages = [
+                {
+                    "role": "system",
+                    "content": (
+                        "Use the supplied evidence to answer the user's question. "
+                        "Do not invent facts that are unsupported by the evidence."
+                    ),
+                },
+                {"role": "user", "content": prompt},
+            ],
+            temperature = 0.1
+        )
+        elapsed_ms = (time.perf_counter() - start) * 1000.0
+        usage = response.usage
+        return {
+            "answer": response.choices[0].message.content.strip(),
+            "latency_ms": elapsed_ms,
+            "prompt_tokens": usage.prompt_tokens if usage else None,
+            "answer_tokens": usage.completion_tokens if usage else None,     
+            "finish_reason": response.choices[0].finish_reason,
+        }
+
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
@@ -53,22 +84,48 @@ def main():
         data_dir / "embeddings/corpus_enc_a.npy",
         data_dir / "embeddings/corpus_enc_a_ids.json",
     )
+    generator = ELMGeneratorWithUsage()
     builder = SimpleContextBuilder()
 
-    for item in items:
-        qid = item["query_id"]
-        transcript = cache[qid]
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("x", encoding="utf-8") as f:
+        for item in items:
+            qid = item["query_id"]
+            transcript = cache[qid]
 
-        t0 = time.perf_counter()
-        qvec = encoder.encode(transcript)
-        embedding_ms = (time.perf_counter() - t0) * 1000.0
+            t0 = time.perf_counter()
+            qvec = encoder.encode(transcript)
+            embedding_ms = (time.perf_counter() - t0) * 1000.0
 
-        ret = retriever.retrieve(qvec, k=args.k)
-        built = builder.build(transcript, ret["record_ids"], data)
-        prompt_chars = len(built["prompt"])
+            ret = retriever.retrieve(qvec, k=args.k)
+            built = builder.build(transcript, ret["record_ids"], data)
+            prompt_chars = len(built["prompt"])
+            gen = generator.generate(built["prompt"])
+            answer_chars = len(gen["answer"])
 
-        print(qid, len(ret["record_ids"]), "records,", prompt_chars, "chars,",
-            round(embedding_ms, 1), "ms_embed,", round(ret["latency_ms"], 1), "ms retrieve")
+
+            row = {
+                "query_id": qid,
+                "split": args.split,
+                "config": args.config,
+                "k": args.k,
+                "transcript": transcript,
+                "answer": gen["answer"],
+                "retrieved_record_ids": ret["record_ids"],
+                "prompt_chars": prompt_chars,
+                "prompt_tokens": gen["prompt_tokens"],
+                "answer_chars": answer_chars,
+                "answer_tokens": gen["answer_tokens"],
+                "finish_reason": gen["finish_reason"],
+                "timing": {
+                    "embedding_ms": embedding_ms,
+                    "retrieval_ms": ret["latency_ms"],
+                    "generation_ms": gen["latency_ms"],
+                },
+            }
+            f.write(json.dumps(row, ensure_ascii=False) + "\n")
+            f.flush()
+            print(qid, args.config, gen["prompt_tokens"], gen["answer_tokens"], round(gen["latency_ms"]))            
 
 if __name__ == "__main__":
     main()
