@@ -4,13 +4,13 @@
   "judge_model": "utter-project/EuroLLM-22B-Instruct-2512",
   "question_mode": "transcript",
   "split": "dev",
-  "queries": 124,
+  "queries": 125,
   "expected_queries": 125,
-  "coverage": 0.992,
-  "is_subset": true,
+  "coverage": 1.0,
+  "is_subset": false,
   "repeats": 3,
-  "mean_correctness": 1.368279569892473,
-  "mean_grounding": 1.3521505376344087,
-  "mean_completeness": 1.099462365591398,
-  "mean_normalised_answer_score": 0.3183243727598566
+  "mean_correctness": 1.3733333333333333,
+  "mean_grounding": 1.3573333333333335,
+  "mean_completeness": 1.1066666666666667,
+  "mean_normalised_answer_score": 0.31977777777777766
 }
