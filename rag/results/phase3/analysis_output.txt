@@ -18,3 +18,9 @@ zero in all k configs: 29 / 123
 k2 - k5 (non floor): mean +0.004  se 0.031
 k10 - k5 (non floor): mean +0.026  se 0.032
 k20 - k5 (non floor): mean +0.011  se 0.033
+shared with rerankers: 123
+hybrid - k5: mean +0.014  se 0.022
+minilm - k5: mean -0.003  se 0.027
+minilm lost (n=23): mean -0.167  se 0.056
+minilm same (n=86): mean +0.047  se 0.029
+minilm gained (n=14): mean -0.042  se 0.117

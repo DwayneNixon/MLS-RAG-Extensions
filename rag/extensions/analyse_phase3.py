@@ -107,3 +107,26 @@ rest = [q for q in shared if q not in all_zero]
 for c in ["k2", "k10", "k20"]:
     d = [scores[c][q] - scores["k5"][q] for q in rest]
     print(f"{c} - k5 (non floor): mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# Reranker against k5 repeat 1, same queries, same method
+# 9. Arm 2: rerankers against k5 repeat 1, same queries, same method
+R = "rag/results"
+for name, path in [("hybrid", f"{R}/hybrid_dev_judge_full125/answer_judge_per_query.jsonl"),
+                   ("minilm", f"{R}/minilm_dev_judge_full125/answer_judge_per_query.jsonl")]:
+    scores[name] = {r["query_id"]: r["normalised_answer_score"] for r in load_jsonl(path)}
+
+shared9 = shared & set(scores["hybrid"]) & set(scores["minilm"])
+print("shared with rerankers:", len(shared9))
+for c in ["hybrid", "minilm"]:
+    d = [scores[c][q] - scores["k5"][q] for q in shared9]
+    print(f"{c} - k5: mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# MiniLM subgroups by change in Recall@5 (MiniLM top 5 vs dense top 5)
+mret = {r["query_id"]: r for r in load_jsonl(f"{R}/minilm_dev_full125.jsonl")}
+def rchange(q):
+    return round(mret[q]["minilm_metrics"]["Recall@5"] - mret[q]["dense_metrics"]["Recall@5"], 6)
+
+for label, test in [("lost", lambda x: x < 0), ("same", lambda x: x == 0), ("gained", lambda x: x > 0)]:
+    group = [q for q in shared9 if test(rchange(q))]
+    d = [scores["minilm"][q] - scores["k5"][q] for q in group]
+    print(f"minilm {label} (n={len(group)}): mean {mean(d):+.3f}  se {se(d):.3f}")
