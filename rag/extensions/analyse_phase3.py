@@ -96,3 +96,14 @@ for c in ["k2", "k5", "k10", "k20"]:
         ys.append(r["timing"]["generation_ms"])
 slope, intercept = linear_regression(xs, ys)
 print(f"fit: generation_ms = {intercept:.0f} + {slope:.1f} * answer_tokens")
+
+# Checking for floor effect: queries that score 0 in every k config
+all_zero = [q for q in shared
+            if all(scores[c][q] == 0  for c in ["k2", "k5", "k10", "k20"])]
+print(f"zero in all k configs: {len(all_zero)} / {len(shared)}")
+
+# Main comparison again, without the all-zero queries
+rest = [q for q in shared if q not in all_zero]
+for c in ["k2", "k10", "k20"]:
+    d = [scores[c][q] - scores["k5"][q] for q in rest]
+    print(f"{c} - k5 (non floor): mean {mean(d):+.3f}  se {se(d):.3f}")

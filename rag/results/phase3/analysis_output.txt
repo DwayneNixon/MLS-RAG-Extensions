@@ -14,3 +14,7 @@ k5: n 122  prompt 1146  answer 258  gen_ms 4269
 k10: n 122  prompt 2372  answer 301  gen_ms 5149
 k20: n 122  prompt 4850  answer 331  gen_ms 5713
 fit: generation_ms = 157 + 16.4 * answer_tokens
+zero in all k configs: 29 / 123
+k2 - k5 (non floor): mean +0.004  se 0.031
+k10 - k5 (non floor): mean +0.026  se 0.032
+k20 - k5 (non floor): mean +0.011  se 0.033
