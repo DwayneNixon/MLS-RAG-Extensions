@@ -145,3 +145,45 @@ for name, path in [("hybrid", f"{R}/hybrid_dev_answers_full125.jsonl"),
         at = [r["answer_tokens"] for r in sub if r.get("answer_tokens") is not None]
         gm = [r["timing"]["generation_ms"] for r in sub if r.get("timing", {}).get("generation_ms") is not None]
         print(f"  {name} [{label}] n {len(sub)}  prompt {median(pt):.0f}  answer {median(at):.0f}  gen_ms {median(gm):.0f}")
+
+# Redundancy test: score by number of relevant records sent to the generator
+from collections import defaultdict
+def n_rel(q, k):
+    return round(k * ret[q][f"Precision@{k}"])   # relevant records in the top k
+
+for c, k in [("k2", 2), ("k5", 5), ("k20", 20)]:
+    groups = defaultdict(list)
+    for q in shared:
+        groups[min(n_rel(q, k), 3)].append(scores[c][q])
+    for n in sorted(groups):
+        g = groups[n]
+        label = f"{n}+" if n == 3 else str(n)
+        print(f"{c}: {label} relevant in top {k}: n={len(g):3d}  mean {mean(g):.3f}  se {se(g) if len(g) > 1 else 0:.3f}")
+cross = [q for q in shared if n_rel(q, 5) == 0 and n_rel(q, 20) >= 1]
+d = [scores["k20"][q] - scores["k5"][q] for q in cross]
+print(f"0 -> 1+ relevant (k5 -> k20): n={len(cross)}  mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# Oracle evidence: gold records first or last, against k5 and against each other
+P4 = "rag/results/phase4"
+ids = {}
+for c in ["gold_first", "gold_last"]:
+    scores[c] = {r["query_id"]: r["normalised_answer_score"]
+                 for r in load_jsonl(f"{P4}/{c}/judge/answer_judge_per_query.jsonl")}
+    ids[c] = {r["query_id"]: r["retrieved_record_ids"] for r in load_jsonl(f"{P4}/{c}/answers.jsonl")}
+
+s12 = shared & set(scores["gold_first"]) & set(scores["gold_last"])
+print("oracle shared queries:", len(s12))
+for c in ["gold_first", "gold_last"]:
+    d = [scores[c][q] - scores["k5"][q] for q in s12]
+    print(f"{c} - k5: mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# Position test: only queries where the two prompts actually differ in order
+moved = [q for q in s12 if ids["gold_first"][q] != ids["gold_last"][q]]
+d = [scores["gold_first"][q] - scores["gold_last"][q] for q in moved]
+print(f"gold_first - gold_last (order differs, n={len(moved)}): mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# Where does the oracle help? Split by how many relevant records k5 already had
+for label, test in [("k5 had 0 relevant", lambda n: n == 0), ("k5 had 1+ relevant", lambda n: n >= 1)]:
+    g = [q for q in s12 if test(n_rel(q, 5))]
+    d = [scores["gold_first"][q] - scores["k5"][q] for q in g]
+    print(f"gold_first - k5, {label} (n={len(g)}): mean {mean(d):+.3f}  se {se(d):.3f}")

@@ -1,7 +1,7 @@
 """Generate answers from cached transcripts (no ASR), logging extra fields."""
 from pathlib import Path
 import sys
-ROOT = Path(__file__).resolve().parents[1]      # the rag/ folder
+ROOT = Path(__file__).resolve().parents[1]     
 sys.path.insert(0, str(ROOT))
 import argparse
 import json
@@ -47,9 +47,26 @@ class ELMGeneratorWithUsage(ELMGenerator):
             "answer": response.choices[0].message.content.strip(),
             "latency_ms": elapsed_ms,
             "prompt_tokens": usage.prompt_tokens if usage else None,
-            "answer_tokens": usage.completion_tokens if usage else None,     
+            "answer_tokens": usage.completion_tokens if usage else None,
             "finish_reason": response.choices[0].finish_reason,
         }
+
+
+def select_evidence(retriever, qvec, k, mode, labels):                     
+    """Return (record_ids sent to the generator, the retrieval result used)."""
+    if mode == "dense":
+        ret = retriever.retrieve(qvec, k=k)
+        return ret["record_ids"], ret
+    ret = retriever.retrieve(qvec, k=100)
+    dense = ret["record_ids"]
+    # gold = labelled relevant records, most relevant first, at most k
+    gold = sorted([r for r, s in labels.items() if s > 0],
+                  key=lambda r: labels[r], reverse=True)[:k]
+    # fill the rest of the k slots from the dense ranking, skipping gold records
+    fill = [r for r in dense if r not in gold][:k - len(gold)]
+    # same records in both modes; only the order differs
+    record_ids = gold + fill if mode == "gold_first" else fill + gold
+    return record_ids, ret
 
 
 def main():
@@ -58,19 +75,22 @@ def main():
     ap.add_argument("--transcript-cache", type=Path, required=True)
     ap.add_argument("--config", required=True, help="e.g. baseline, k10, k20")
     ap.add_argument("--k", type=int, default=5)
+    ap.add_argument("--evidence", choices=["dense", "gold_first", "gold_last"],   
+                    default="dense", help="dense = normal retrieval; gold_* = oracle evidence")
     ap.add_argument("--output", type=Path, required=True)
     ap.add_argument("--device", default=None)
     ap.add_argument("--limit", type=int, default=None)
     args = ap.parse_args()
 
     if args.output.exists():
-        ap.error("Results cannot be overwritten.")                               
+        ap.error("Results cannot be overwritten.")
 
     cache = load_cache(args.transcript_cache)
-    
+
     data_dir = ROOT / "data/rag_corpus"
     data = CourseData(data_dir)
     items = data.audio_items(args.split)
+    qrels = data.load_qrels(args.split) if args.evidence != "dense" else {}   
 
     missing = [item["query_id"] for item in items if item["query_id"] not in cache]
     if missing:
@@ -97,8 +117,9 @@ def main():
             qvec = encoder.encode(transcript)
             embedding_ms = (time.perf_counter() - t0) * 1000.0
 
-            ret = retriever.retrieve(qvec, k=args.k)
-            built = builder.build(transcript, ret["record_ids"], data)
+            record_ids, ret = select_evidence(retriever, qvec, args.k,          
+                                              args.evidence, qrels.get(qid, {}))
+            built = builder.build(transcript, record_ids, data)
             prompt_chars = len(built["prompt"])
             gen = generator.generate(built["prompt"])
             answer_chars = len(gen["answer"])
@@ -109,9 +130,10 @@ def main():
                 "split": args.split,
                 "config": args.config,
                 "k": args.k,
+                "evidence": args.evidence,                                     
                 "transcript": transcript,
                 "answer": gen["answer"],
-                "retrieved_record_ids": ret["record_ids"],
+                "retrieved_record_ids": record_ids,                            
                 "prompt_chars": prompt_chars,
                 "prompt_tokens": gen["prompt_tokens"],
                 "answer_chars": answer_chars,
@@ -125,7 +147,7 @@ def main():
             }
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
             f.flush()
-            print(qid, args.config, gen["prompt_tokens"], gen["answer_tokens"], round(gen["latency_ms"]))            
+            print(qid, args.config, gen["prompt_tokens"], gen["answer_tokens"], round(gen["latency_ms"]))
 
 if __name__ == "__main__":
     main()
