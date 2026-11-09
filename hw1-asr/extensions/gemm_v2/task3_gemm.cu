@@ -70,15 +70,15 @@ __global__ void linear_tiled_kernel(const float* x, const float* w, const float*
 
 
 // ---- v2: register-tiled GEMM: y[M,N] = act(x[M,K] * w[N,K]^T + bias) ----
-constexpr int BM = 64;
 constexpr int BN = 64;
 constexpr int BK = 16;
 constexpr int TM = 4;
 constexpr int TN = 4;
-constexpr int NT = (BM / TM) * (BN / TN);
 
+template <int BM>
 __global__ void linear_regtile_kernel(const float* x, const float* w, const float* bias,
                                       float* y, int M, int N, int K, int act) {
+  constexpr int NT = (BM / TM) * (BN / TN);   // threads per block, depends on BM
   __shared__ float xs[BK][BM + 1];
   __shared__ float ws[BK][BN + 1];
 
@@ -135,8 +135,16 @@ __global__ void linear_regtile_kernel(const float* x, const float* w, const floa
 
 ASR_API int launch_linear(const float* x, const float* w, const float* bias, float* y,
                           int M, int N, int K, int act, cudaStream_t stream) {
-  dim3 block(NT);
-  dim3 grid(ceil_div(N, BN), ceil_div(M, BM));
-  linear_regtile_kernel<<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  // choose the tile height by shape: tall matrices (encoder) reuse more with BM = 64;
+  // short ones (decoder, M ~ 59-71) need more blocks to fill the GPU, so BM = 32
+  if (M >= 128) {
+    dim3 block((64 / TM) * (BN / TN));
+    dim3 grid(ceil_div(N, BN), ceil_div(M, 64));
+    linear_regtile_kernel<64><<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  } else {
+    dim3 block((32 / TM) * (BN / TN));
+    dim3 grid(ceil_div(N, BN), ceil_div(M, 32));
+    linear_regtile_kernel<32><<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  }
   RETURN_LAUNCH_ERROR();
 }
