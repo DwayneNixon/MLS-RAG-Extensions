@@ -130,3 +130,18 @@ for label, test in [("lost", lambda x: x < 0), ("same", lambda x: x == 0), ("gai
     group = [q for q in shared9 if test(rchange(q))]
     d = [scores["minilm"][q] - scores["k5"][q] for q in group]
     print(f"minilm {label} (n={len(group)}): mean {mean(d):+.3f}  se {se(d):.3f}")
+
+# Generation cost for reranker
+from collections import Counter
+for name, path in [("hybrid", f"{R}/hybrid_dev_answers_full125.jsonl"),
+                   ("minilm", f"{R}/minilm_dev_answers_full125.jsonl")]:
+    rows = [r for r in load_jsonl(path) if r["query_id"] in shared]
+    print(name, "answer_origin:", dict(Counter(str(r.get("answer_origin")) for r in rows)))
+    groups = {"all": rows}
+    for r in rows:
+        groups.setdefault(str(r.get("answer_origin")), []).append(r)
+    for label, sub in groups.items():
+        pt = [r["prompt_tokens"] for r in sub if r.get("prompt_tokens") is not None]
+        at = [r["answer_tokens"] for r in sub if r.get("answer_tokens") is not None]
+        gm = [r["timing"]["generation_ms"] for r in sub if r.get("timing", {}).get("generation_ms") is not None]
+        print(f"  {name} [{label}] n {len(sub)}  prompt {median(pt):.0f}  answer {median(at):.0f}  gen_ms {median(gm):.0f}")

@@ -24,3 +24,11 @@ minilm - k5: mean -0.003  se 0.027
 minilm lost (n=23): mean -0.167  se 0.056
 minilm same (n=86): mean +0.047  se 0.029
 minilm gained (n=14): mean -0.042  se 0.117
+hybrid answer_origin: {'reused_hybrid_smoke': 4, 'reused_dense_k5b_identical_prompt': 56, 'generated_new': 63}
+  hybrid [all] n 123  prompt 1184  answer 260  gen_ms 4354
+  hybrid [reused_hybrid_smoke] n 4  prompt 878  answer 254  gen_ms 4287
+  hybrid [reused_dense_k5b_identical_prompt] n 56  prompt 1189  answer 217  gen_ms 3555
+  hybrid [generated_new] n 63  prompt 1240  answer 303  gen_ms 5009
+minilm answer_origin: {'generated_new': 123}
+  minilm [all] n 123  prompt 1367  answer 252  gen_ms 4857
+  minilm [generated_new] n 123  prompt 1367  answer 252  gen_ms 4857
