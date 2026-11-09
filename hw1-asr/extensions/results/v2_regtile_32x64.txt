@@ -1,0 +1,27 @@
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Iextensions/gemm_v2 -c extensions/gemm_v2/task3_gemm.cu -o /tmp/s2918125/build_v2/obj/task3_gemm.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Iextensions/gemm_v2 tests/test_task3_gemm.cu /tmp/s2918125/build_v2/obj/task1_rope.o /tmp/s2918125/build_v2/obj/task2_reduce.o /tmp/s2918125/build_v2/obj/task3_gemm.o /tmp/s2918125/build_v2/obj/task4_attention.o /tmp/s2918125/build_v2/obj/provided.o -o /tmp/s2918125/build_v2/test_task3_gemm -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
+/tmp/s2918125/build_v2/test_task3_gemm
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75), 68 SMs, peak memory bandwidth about 616 GB/s
+
+tiny 3 x 5, K = 7                    PASS  max_err=9.76e-09     0.004 ms        0 GFLOP/s
+    for comparison: naive      0 GFLOP/s, cuBLAS      0 GFLOP/s (CPU reference)
+odd sizes 37 x 100, K = 33, bias     PASS  max_err=1.55e-07     0.009 ms       26 GFLOP/s
+    for comparison: naive     50 GFLOP/s, cuBLAS     29 GFLOP/s (CPU reference)
+odd sizes, bias + GELU               PASS  max_err=7.70e-07     0.020 ms       44 GFLOP/s
+    for comparison: naive     87 GFLOP/s, cuBLAS    103 GFLOP/s (CPU reference)
+decoder q_proj (64x2048x2048)        PASS  max_err=1.10e-05     0.308 ms     1743 GFLOP/s
+    for comparison: naive    154 GFLOP/s, cuBLAS   4699 GFLOP/s (cuBLAS reference)
+decoder gate_proj (64x6144x2048)     PASS  max_err=1.19e-05     0.750 ms     2148 GFLOP/s
+    for comparison: naive    162 GFLOP/s, cuBLAS   6711 GFLOP/s (cuBLAS reference)
+decoder down_proj (64x2048x6144)     PASS  max_err=3.62e-05     0.891 ms     1807 GFLOP/s
+    for comparison: naive    155 GFLOP/s, cuBLAS   7069 GFLOP/s (cuBLAS reference)
+lm_head, last token (1x59264x2048)   PASS  max_err=1.24e-05     3.285 ms       74 GFLOP/s
+    for comparison: naive     85 GFLOP/s, cuBLAS    290 GFLOP/s (cuBLAS reference)
+encoder q_proj (1500x1280x1280)      PASS  max_err=2.38e-07     1.532 ms     3209 GFLOP/s
+    for comparison: naive    227 GFLOP/s, cuBLAS  12976 GFLOP/s (cuBLAS reference)
+encoder fc1 + GELU (1500x5120x1280)  PASS  max_err=6.92e-07     6.279 ms     3131 GFLOP/s
+    for comparison: naive    229 GFLOP/s, cuBLAS  13564 GFLOP/s (cuBLAS reference)
+conv2 via im2col (1500x1280x3840)    PASS  max_err=7.16e-07     4.625 ms     3188 GFLOP/s
+    for comparison: naive    229 GFLOP/s, cuBLAS  13454 GFLOP/s (cuBLAS reference)
+
+Task 3 (tiled GEMM): ALL PASS
