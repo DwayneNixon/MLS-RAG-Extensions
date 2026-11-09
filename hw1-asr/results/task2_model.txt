@@ -1,6 +1,6 @@
 GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
 Kernels: rope=cuda  reduce=cuda  gemm=torch  attention=torch  provided=cuda
-Library: /home/s2918125/edin-mls-26-autumn/hw1-asr/build/sm_75/libasr_kernels.so
+Library: ~/edin-mls-26-autumn/hw1-asr/build/sm_75/libasr_kernels.so
 Loading the model (about 9 GB of float32 weights)...
 Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 Loaded in 127.9 s

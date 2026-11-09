@@ -1,6 +1,6 @@
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task4_attention.cu -o /tmp/s2918125/build/obj/task4_attention.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc tests/test_task4_attention.cu /tmp/s2918125/build/obj/task1_rope.o /tmp/s2918125/build/obj/task2_reduce.o /tmp/s2918125/build/obj/task3_gemm.o /tmp/s2918125/build/obj/task4_attention.o /tmp/s2918125/build/obj/provided.o -o /tmp/s2918125/build/test_task4_attention -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
-/tmp/s2918125/build/test_task4_attention
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task4_attention.cu -o /tmp/$USER/build/obj/task4_attention.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc tests/test_task4_attention.cu /tmp/$USER/build/obj/task1_rope.o /tmp/$USER/build/obj/task2_reduce.o /tmp/$USER/build/obj/task3_gemm.o /tmp/$USER/build/obj/task4_attention.o /tmp/$USER/build/obj/provided.o -o /tmp/$USER/build/test_task4_attention -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
+/tmp/$USER/build/test_task4_attention
 GPU: NVIDIA GeForce RTX 2080 Ti (sm_75), 68 SMs, peak memory bandwidth about 616 GB/s
 
 tiny, one tile (4 queries, 5 keys)   PASS  max_err=8.15e-08     0.013 ms        0 GFLOP/s

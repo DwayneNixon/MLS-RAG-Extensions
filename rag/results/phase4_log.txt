@@ -321,12 +321,12 @@ q_a756969099a5c91a: 0.417
 q_3c305034a907bff9: 0.500
 q_88e135fa82ca9d35: 0.000
 Traceback (most recent call last):
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
     main()
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
     score = judge.evaluate(row["transcript"], row["answer"], docs)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/s2918125/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
+  File "~/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
     raise RuntimeError(f"judge request failed: {last}")
 RuntimeError: judge request failed: Expecting ',' delimiter: line 5 column 499 (char 559)
 q_dc0daa63c6ad372c: 0.417
@@ -412,12 +412,12 @@ q_64a524fc04d7d380: 1.000
 q_9ff0a37eb3d4374e: 0.500
 q_91fc9afe8e04c782: 0.417
 Traceback (most recent call last):
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
     main()
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
     score = judge.evaluate(row["transcript"], row["answer"], docs)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/s2918125/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
+  File "~/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
     raise RuntimeError(f"judge request failed: {last}")
 RuntimeError: judge request failed: Expecting ',' delimiter: line 5 column 514 (char 574)
 q_dc0daa63c6ad372c: 0.417

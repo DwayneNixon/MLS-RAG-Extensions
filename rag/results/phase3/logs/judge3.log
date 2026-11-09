@@ -117,11 +117,11 @@ q_b3ba420b3fd4247e: 0.417
 q_54feaf0a76462c56: 0.000
 q_f289da5dc985a411: 0.000
 Traceback (most recent call last):
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 92, in <module>
     main()
-  File "/home/s2918125/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
+  File "~/edin-mls-26-autumn/rag/scripts/evaluate_answers.py", line 70, in main
     score = judge.evaluate(row["transcript"], row["answer"], docs)
             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/s2918125/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
+  File "~/edin-mls-26-autumn/rag/src/evaluation/answer_judge.py", line 228, in evaluate
     raise RuntimeError(f"judge request failed: {last}")
 RuntimeError: judge request failed: Expecting ',' delimiter: line 5 column 541 (char 601)

@@ -1,10 +1,10 @@
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task1_rope.cu -o /tmp/s2918125/build/obj/task1_rope.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task2_reduce.cu -o /tmp/s2918125/build/obj/task2_reduce.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task3_gemm.cu -o /tmp/s2918125/build/obj/task3_gemm.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task4_attention.cu -o /tmp/s2918125/build/obj/task4_attention.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/provided.cu -o /tmp/s2918125/build/obj/provided.o
-nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc tests/test_task2_reduce.cu /tmp/s2918125/build/obj/task1_rope.o /tmp/s2918125/build/obj/task2_reduce.o /tmp/s2918125/build/obj/task3_gemm.o /tmp/s2918125/build/obj/task4_attention.o /tmp/s2918125/build/obj/provided.o -o /tmp/s2918125/build/test_task2_reduce -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
-/tmp/s2918125/build/test_task2_reduce
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task1_rope.cu -o /tmp/$USER/build/obj/task1_rope.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task2_reduce.cu -o /tmp/$USER/build/obj/task2_reduce.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task3_gemm.cu -o /tmp/$USER/build/obj/task3_gemm.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task4_attention.cu -o /tmp/$USER/build/obj/task4_attention.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/provided.cu -o /tmp/$USER/build/obj/provided.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc tests/test_task2_reduce.cu /tmp/$USER/build/obj/task1_rope.o /tmp/$USER/build/obj/task2_reduce.o /tmp/$USER/build/obj/task3_gemm.o /tmp/$USER/build/obj/task4_attention.o /tmp/$USER/build/obj/provided.o -o /tmp/$USER/build/test_task2_reduce -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
+/tmp/$USER/build/test_task2_reduce
 GPU: NVIDIA GeForce RTX 2080 Ti (sm_75), 68 SMs, peak memory bandwidth about 616 GB/s
 
 rmsnorm, one short row               PASS  max_err=8.27e-08     0.005 ms      0.1 GB/s ( 0% of peak)
