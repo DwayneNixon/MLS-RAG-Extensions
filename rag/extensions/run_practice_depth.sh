@@ -65,7 +65,7 @@ judge () {  # $1 = arm
       --split $SPLIT --out-dir "$OUT/$arm/judge" --repeats 1 --api-retries 8 --allow-subset
   else
     "$PY" rag/extensions/judge_resumable.py --candidates "$OUT/$arm/answers.jsonl" \
-      --split $SPLIT --out-dir "$OUT/$arm/judge" --api-retries 8
+      --split $SPLIT --out-dir "$OUT/$arm/judge" --api-retries 8 --max-excluded 20
   fi
 }
 

@@ -80,4 +80,10 @@ exploratory and will be labelled as such.
 
 ## Another note
 This was checked by searching the repository and the cluster checkout for
-Practice answer files on 11 November 2026; only the README sample was found.
+Practice answer files on 11 November 2026; only the README sample was found.## Amendment 1 (made during k = 5 judging, before any k = 2 or k = 20 answer existed)
+
+After 65 of 350 k = 5 judgements, 2 queries had been excluded for malformed
+judge JSON (about 3%, against 2 of 875 on Development). No scores had been
+compared. The stop threshold is raised from 5 to 20 excluded queries per arm so
+that the run can complete. The exclusion rule, the analyses and the margin are
+unchanged. Exclusions will be reported for each arm.
