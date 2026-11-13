@@ -1,0 +1,12 @@
+===== PRE-FLIGHT =====
+2026-11-11T13:42:45+00:00
+hastings.inf.ed.ac.uk
+Cached practice transcripts: 350 (expected 350)
+ELM_BASE_URL=https://elm.edina.ac.uk/api/v1
+ELM_MODEL=utter-project/EuroLLM-22B-Instruct-2512
+ELM_JUDGE_MODEL=
+Commit: 75308c6a3e1394ea71ae67a3f0c2801ab3ad7ddf
+Plan committed at: 2026-11-11T13:26:07+00:00
+
+===== GENERATE k5 (k=5) 2026-11-11T13:42:46+00:00 =====
+[resume] 0 done, 350 to do, 0 truncated line(s) dropped

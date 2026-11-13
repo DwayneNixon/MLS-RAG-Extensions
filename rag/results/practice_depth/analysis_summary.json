@@ -1,0 +1,65 @@
+{
+  "margin": 0.03,
+  "practice_k5_excluded": [
+    "q_4e29b0ce6fa96d1a",
+    "q_0a12138b81eb7e2a"
+  ],
+  "practice_k2_excluded": [
+    "q_cf481783581f77d9"
+  ],
+  "practice_k20_excluded": [],
+  "primary_practice_k2_minus_k5": {
+    "n": 347,
+    "mean": -0.007684918347742554,
+    "se": 0.015954899344539777,
+    "ci90": [
+      -0.033930727769510484,
+      0.01856089107402538
+    ],
+    "ci95": [
+      -0.03895652106304052,
+      0.023586684367555406
+    ],
+    "verdict": "CONSISTENT WITH NON-INFERIORITY BUT NOT ESTABLISHED: the interval includes zero but its lower bound (-0.0339) is not above -0.03. The supported claim is that k=2 loses less than 0.0339."
+  },
+  "secondary_pooled_k2_minus_k5": {
+    "n": 470,
+    "mean": -0.004964539007092198,
+    "se": 0.013292303773399645,
+    "ci90": [
+      -0.026830378714334614,
+      0.016901300700150217
+    ],
+    "ci95": [
+      -0.031017454402955502,
+      0.021088376388771105
+    ],
+    "verdict": "NON-INFERIORITY ESTABLISHED: the lower 90% bound (-0.0268) is above -0.03. k=2 loses less than 0.03 relative to k=5."
+  },
+  "secondary_practice_k20_minus_k5": {
+    "n": 348,
+    "mean": -0.0203544061302682,
+    "se": 0.016735531501194462,
+    "ci90": [
+      -0.04788435544973309,
+      0.007175543189196689
+    ],
+    "ci95": [
+      -0.053156047872609344,
+      0.012447235612072945
+    ]
+  },
+  "secondary_pooled_k20_minus_k5": {
+    "n": 471,
+    "mean": -0.012915782024062279,
+    "se": 0.013972792195260516,
+    "ci90": [
+      -0.03590102518526583,
+      0.01006946113714127
+    ],
+    "ci95": [
+      -0.040302454726772886,
+      0.01447089067864833
+    ]
+  }
+}

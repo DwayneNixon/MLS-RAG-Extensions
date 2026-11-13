@@ -1,0 +1,24 @@
+Practice k5: 348 judged, excluded ['q_4e29b0ce6fa96d1a', 'q_0a12138b81eb7e2a']
+Practice k2: 349 judged, excluded ['q_cf481783581f77d9']
+Practice k20: 350 judged, excluded []
+
+=== PRIMARY: Practice, k=2 minus k=5 (non-inferiority, margin 0.03) ===
+Practice k2 - k5: n=347  mean -0.0077  SE 0.0160  90% CI [-0.0339, +0.0186]  95% CI [-0.0390, +0.0236]
+CONSISTENT WITH NON-INFERIORITY BUT NOT ESTABLISHED: the interval includes zero but its lower bound (-0.0339) is not above -0.03. The supported claim is that k=2 loses less than 0.0339.
+
+Development queries scored in every depth configuration: 123
+
+=== SECONDARY 1: Practice and Development pooled, k=2 minus k=5 ===
+Development k2 - k5 (already reported): n=123  mean +0.0027  SE 0.0236  90% CI [-0.0361, +0.0416]  95% CI [-0.0436, +0.0490]
+Pooled k2 - k5: n=470  mean -0.0050  SE 0.0133  90% CI [-0.0268, +0.0169]  95% CI [-0.0310, +0.0211]
+NON-INFERIORITY ESTABLISHED: the lower 90% bound (-0.0268) is above -0.03. k=2 loses less than 0.03 relative to k=5.
+
+=== SECONDARY 2: k=20 minus k=5 (two-sided estimate) ===
+Practice k20 - k5: n=348  mean -0.0204  SE 0.0167  90% CI [-0.0479, +0.0072]  95% CI [-0.0532, +0.0124]
+Development k20 - k5 (already reported): n=123  mean +0.0081  SE 0.0249  90% CI [-0.0329, +0.0491]  95% CI [-0.0407, +0.0570]
+Pooled k20 - k5: n=471  mean -0.0129  SE 0.0140  90% CI [-0.0359, +0.0101]  95% CI [-0.0403, +0.0145]
+
+=== DESCRIPTIVE ===
+Practice k5: mean score 0.3439, share scoring exactly zero 0.397
+Practice k2: mean score 0.3352, share scoring exactly zero 0.436
+Practice k20: mean score 0.3217, share scoring exactly zero 0.423
