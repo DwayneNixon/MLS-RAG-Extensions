@@ -68,10 +68,83 @@ __global__ void linear_tiled_kernel(const float* x, const float* w, const float*
   }
 }
 
+
+// ---- v2: register-tiled GEMM: y[M,N] = act(x[M,K] * w[N,K]^T + bias) ----
+constexpr int BN = 64;
+constexpr int BK = 32;
+constexpr int TM = 4;
+constexpr int TN = 4;
+
+template <int BM>
+__global__ void linear_regtile_kernel(const float* x, const float* w, const float* bias,
+                                      float* y, int M, int N, int K, int act) {
+  constexpr int NT = (BM / TM) * (BN / TN);   // threads per block, depends on BM
+  __shared__ float xs[BK][BM + 1];
+  __shared__ float ws[BK][BN + 1];
+
+  const int tx = threadIdx.x % (BN / TN);
+  const int ty = threadIdx.x / (BN / TN);
+  const int row0 = blockIdx.y * BM;
+  const int col0 = blockIdx.x * BN;
+
+  float acc[TM][TN] = {0.0f};
+  float a[TM];
+  float b[TN];
+
+  for (int k0 = 0; k0 < K; k0 += BK) {
+    for (int i = threadIdx.x; i < BM * BK; i += NT) {      // load x tile
+      int r = i / BK, c = i % BK;
+      int gr = row0 + r, gk = k0 + c;
+      xs[c][r] = (gr < M && gk < K) ? x[gr * K + gk] : 0.0f;
+    }
+    for (int i = threadIdx.x; i < BN * BK; i += NT) {      // load w tile
+      int r = i / BK, c = i % BK;
+      int gn = col0 + r, gk = k0 + c;
+      ws[c][r] = (gn < N && gk < K) ? w[gn * K + gk] : 0.0f;
+    }
+    __syncthreads();
+
+#pragma unroll
+    for (int kk = 0; kk < BK; ++kk) {                      // outer products in registers
+#pragma unroll
+      for (int i = 0; i < TM; ++i) a[i] = xs[kk][ty * TM + i];
+#pragma unroll
+      for (int j = 0; j < TN; ++j) b[j] = ws[kk][tx * TN + j];
+#pragma unroll
+      for (int i = 0; i < TM; ++i)
+#pragma unroll
+        for (int j = 0; j < TN; ++j)
+          acc[i][j] += a[i] * b[j];
+    }
+    __syncthreads();
+  }
+
+#pragma unroll
+  for (int i = 0; i < TM; ++i)                             // epilogue, same as v1
+#pragma unroll
+    for (int j = 0; j < TN; ++j) {
+      int r = row0 + ty * TM + i, c = col0 + tx * TN + j;
+      if (r < M && c < N) {
+        float v = acc[i][j];
+        if (bias != nullptr) v += bias[c];
+        if (act == ACT_GELU) v = gelu(v);
+        y[r * N + c] = v;
+      }
+    }
+}
+
 ASR_API int launch_linear(const float* x, const float* w, const float* bias, float* y,
                           int M, int N, int K, int act, cudaStream_t stream) {
-  dim3 block(TILE, TILE);
-  dim3 grid(ceil_div(N, TILE), ceil_div(M, TILE));
-  linear_tiled_kernel<<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  // choose the tile height by shape: tall matrices (encoder) reuse more with BM = 64;
+  // short ones (decoder, M ~ 59-71) need more blocks to fill the GPU, so BM = 32
+  if (M >= 128) {
+    dim3 block((64 / TM) * (BN / TN));
+    dim3 grid(ceil_div(N, BN), ceil_div(M, 64));
+    linear_regtile_kernel<64><<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  } else {
+    dim3 block((32 / TM) * (BN / TN));
+    dim3 grid(ceil_div(N, BN), ceil_div(M, 32));
+    linear_regtile_kernel<32><<<grid, block, 0, stream>>>(x, w, bias, y, M, N, K, act);
+  }
   RETURN_LAUNCH_ERROR();
 }

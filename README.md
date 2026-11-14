@@ -21,9 +21,9 @@ This private repository assembles coursework contributions by **Dwayne Nixon and
 
 ## CUDA investigations
 
-The default five `hw1-asr/csrc/` task files are preserved **unaltered from Nitay's source branch**; its saved final 33-case test log and GPU identification are in `hw1-asr/results/`. Dwayne's independently validated source versions are retained separately in `hw1-asr/extensions/dwayne_variant/csrc/` and on his unchanged source branch.
+The five standard `hw1-asr/csrc/` task files now form the **final CUDA submission candidate**: Nitay's tested RoPE/reductions/attention implementations, plus the register-tiled shape-aware GEMM v2 with **BK=32** promoted to the official `csrc/task3_gemm.cu` path. The previous Nitay v1 GEMM is archived at `hw1-asr/extensions/nitay_v1_task3_gemm.cu`. Dwayne's independently validated five-file source set remains under `hw1-asr/extensions/dwayne_variant/csrc/` and on his unchanged original branch. **A fresh combined `make test`, `./run.sh --profile` and GPU log is still required after promotion**. Full details: [Final CUDA status](hw1-asr/FINAL_CUDA.md).
 
-The additional register-tiled, shape-aware GEMM **v2** lives at `hw1-asr/extensions/gemm_v2/task3_gemm.cu`; its instructions and evidence are documented in [hw1-asr/extensions/README.md](hw1-asr/extensions/README.md). It is **not automatically the default `csrc/task3_gemm.cu`**. The saved experiment reports 1,563.6 ms/transcription for v2 vs 2,689.8 ms for its v1 comparison (~1.72× faster than v1), still slower than its separate PyTorch benchmark. A later block-size sweep includes other experimental settings. Do not relabel a variant as the submitted kernel without a verified full build/test.
+The original register-tiled GEMM **v2 BK=16** is preserved at `hw1-asr/extensions/gemm_v2/task3_gemm.cu`; [the documented BK=32 sweep](hw1-asr/extensions/results/gemm_blocks_3716786/) passed all 10 Task 3 tests and the end-to-end transcription. On the **same RTX 2080 Ti node/session**, v1 took **2,741.6 ms**, BK=16 took **1,593.2 ms**, and BK=32 took **1,481.9 ms** per transcription (about **1.85× faster than v1**, still slower than PyTorch). The BK=32-tested kernel is now the default CUDA source in this draft, but its newly integrated checkout still needs its own same-node full regression and profile.
 
 ## RAG investigations
 
