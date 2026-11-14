@@ -1,0 +1,8 @@
+2026-11-13T12:42:56+00:00
+damnii12.inf.ed.ac.uk
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-147f757c-bf2c-9ea0-49cd-ad4b87c4ccc2)
+name, uuid, compute_cap
+NVIDIA GeForce RTX 2080 Ti, GPU-147f757c-bf2c-9ea0-49cd-ad4b87c4ccc2, 7.5
+commit: eb705330ec46397840165ac322d8d94c04333899
+gemm_v2 source sha256: 03208afd9e13bb5292c33150451ca9c048138b77f3fd4579dc25f093c19f0707
+2026-11-13T13:03:22+00:00

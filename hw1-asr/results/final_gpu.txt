@@ -1,0 +1,2 @@
+damnii12.inf.ed.ac.uk
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-29fb768d-dc6d-2291-2a3b-25edab770efb)

@@ -1,0 +1,28 @@
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc -c csrc/task3_gemm.cu -o /tmp/$USER/build/obj/task3_gemm.o
+nvcc -O3 -std=c++17 -lineinfo -diag-suppress 177 -arch=sm_75 -Xcompiler -fPIC -Icsrc tests/test_task3_gemm.cu /tmp/$USER/build/obj/task1_rope.o /tmp/$USER/build/obj/task2_reduce.o /tmp/$USER/build/obj/task3_gemm.o /tmp/$USER/build/obj/task4_attention.o /tmp/$USER/build/obj/provided.o -o /tmp/$USER/build/test_task3_gemm -lcublas -Xlinker -rpath -Xlinker /opt/cuda-12.8.0/lib64
+/tmp/$USER/build/test_task3_gemm
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75), 68 SMs, peak memory bandwidth about 616 GB/s
+
+tiny 3 x 5, K = 7                    PASS  max_err=9.76e-09     0.005 ms        0 GFLOP/s
+    for comparison: naive      0 GFLOP/s, cuBLAS      0 GFLOP/s (CPU reference)
+odd sizes 37 x 100, K = 33, bias     PASS  max_err=1.55e-07     0.004 ms       60 GFLOP/s
+    for comparison: naive     48 GFLOP/s, cuBLAS     21 GFLOP/s (CPU reference)
+odd sizes, bias + GELU               PASS  max_err=7.70e-07     0.007 ms      130 GFLOP/s
+    for comparison: naive     86 GFLOP/s, cuBLAS     82 GFLOP/s (CPU reference)
+decoder q_proj (64x2048x2048)        FAIL  max_err=1.00e+00
+    40293 of 131072 checked values are wrong. First: index 332, got -1.871, expected -1.92786
+decoder gate_proj (64x6144x2048)     FAIL  max_err=1.09e+00
+    144061 of 393216 checked values are wrong. First: index 778, got 0.227813, expected 0.247676
+decoder down_proj (64x2048x6144)     FAIL  max_err=7.36e-01
+    8226 of 131072 checked values are wrong. First: index 1932, got 2.19945, expected 2.22042
+lm_head, last token (1x59264x2048)   FAIL  max_err=8.74e-01
+    31118 of 59264 checked values are wrong. First: index 2162, got 0.771392, expected 0.804948
+encoder q_proj (1500x1280x1280)      FAIL  max_err=7.70e-01
+    434037 of 1920000 checked values are wrong. First: index 333, got -1.4829, expected -1.47248
+encoder fc1 + GELU (1500x5120x1280)  FAIL  max_err=3.54e-01
+    2963 of 7680000 checked values are wrong. First: index 84442, got -0.0654694, expected -0.0586737
+conv2 via im2col (1500x1280x3840)    FAIL  max_err=7.19e-01
+    17501 of 1920000 checked values are wrong. First: index 412, got -0.169826, expected -0.167821
+
+Task 3 (tiled GEMM): SOME CASES FAILED
+make: *** [Makefile:59: test3] Error 1

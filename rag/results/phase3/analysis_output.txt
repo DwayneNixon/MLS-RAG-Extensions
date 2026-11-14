@@ -1,0 +1,34 @@
+shared queries: 123
+k5b - k5: mean -0.004  se 0.022
+k2 - k5: mean +0.003  se 0.024
+k10 - k5: mean +0.020  se 0.025
+k20 - k5: mean +0.008  se 0.025
+judge rep2 - rep1: mean -0.010  se 0.012
+gained: 53  none: 70
+gained: k20 - k5 mean +0.039  se 0.041
+none: k20 - k5 mean -0.015  se 0.031
+gained: completeness +0.19 (se 0.16)  tokens +40 (se 18)
+none: completeness -0.07 (se 0.13)  tokens +41 (se 15)
+k2: n 122  prompt 469  answer 140  gen_ms 2271
+k5: n 122  prompt 1146  answer 258  gen_ms 4269
+k10: n 122  prompt 2372  answer 301  gen_ms 5149
+k20: n 122  prompt 4850  answer 331  gen_ms 5713
+fit: generation_ms = 157 + 16.4 * answer_tokens
+zero in all k configs: 29 / 123
+k2 - k5 (non floor): mean +0.004  se 0.031
+k10 - k5 (non floor): mean +0.026  se 0.032
+k20 - k5 (non floor): mean +0.011  se 0.033
+shared with rerankers: 123
+hybrid - k5: mean +0.014  se 0.022
+minilm - k5: mean -0.003  se 0.027
+minilm lost (n=23): mean -0.167  se 0.056
+minilm same (n=86): mean +0.047  se 0.029
+minilm gained (n=14): mean -0.042  se 0.117
+hybrid answer_origin: {'reused_hybrid_smoke': 4, 'reused_dense_k5b_identical_prompt': 56, 'generated_new': 63}
+  hybrid [all] n 123  prompt 1184  answer 260  gen_ms 4354
+  hybrid [reused_hybrid_smoke] n 4  prompt 878  answer 254  gen_ms 4287
+  hybrid [reused_dense_k5b_identical_prompt] n 56  prompt 1189  answer 217  gen_ms 3555
+  hybrid [generated_new] n 63  prompt 1240  answer 303  gen_ms 5009
+minilm answer_origin: {'generated_new': 123}
+  minilm [all] n 123  prompt 1367  answer 252  gen_ms 4857
+  minilm [generated_new] n 123  prompt 1367  answer 252  gen_ms 4857

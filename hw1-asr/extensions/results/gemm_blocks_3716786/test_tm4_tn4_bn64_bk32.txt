@@ -1,0 +1,30 @@
+config: TM=4 TN=4 BN=64 BK=32
+73:constexpr int BN = 64;
+74:constexpr int BK = 32;
+75:constexpr int TM = 4;
+76:constexpr int TN = 4;
+lines differing from extensions/gemm_v2/task3_gemm.cu: 1
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75), 68 SMs, peak memory bandwidth about 616 GB/s
+
+tiny 3 x 5, K = 7                    PASS  max_err=9.76e-09     0.005 ms        0 GFLOP/s
+    for comparison: naive      0 GFLOP/s, cuBLAS      0 GFLOP/s (CPU reference)
+odd sizes 37 x 100, K = 33, bias     PASS  max_err=1.55e-07     0.009 ms       27 GFLOP/s
+    for comparison: naive     54 GFLOP/s, cuBLAS     32 GFLOP/s (CPU reference)
+odd sizes, bias + GELU               PASS  max_err=7.70e-07     0.019 ms       47 GFLOP/s
+    for comparison: naive     89 GFLOP/s, cuBLAS    105 GFLOP/s (CPU reference)
+decoder q_proj (64x2048x2048)        PASS  max_err=1.10e-05     0.249 ms     2152 GFLOP/s
+    for comparison: naive    153 GFLOP/s, cuBLAS   4627 GFLOP/s (cuBLAS reference)
+decoder gate_proj (64x6144x2048)     PASS  max_err=1.19e-05     0.430 ms     3747 GFLOP/s
+    for comparison: naive    162 GFLOP/s, cuBLAS   6791 GFLOP/s (cuBLAS reference)
+decoder down_proj (64x2048x6144)     PASS  max_err=3.62e-05     0.725 ms     2222 GFLOP/s
+    for comparison: naive    185 GFLOP/s, cuBLAS   8000 GFLOP/s (cuBLAS reference)
+lm_head, last token (1x59264x2048)   PASS  max_err=1.24e-05     1.479 ms      164 GFLOP/s
+    for comparison: naive    102 GFLOP/s, cuBLAS    291 GFLOP/s (cuBLAS reference)
+encoder q_proj (1500x1280x1280)      PASS  max_err=2.38e-07     0.855 ms     5747 GFLOP/s
+    for comparison: naive    224 GFLOP/s, cuBLAS  12925 GFLOP/s (cuBLAS reference)
+encoder fc1 + GELU (1500x5120x1280)  PASS  max_err=6.92e-07     3.561 ms     5522 GFLOP/s
+    for comparison: naive    227 GFLOP/s, cuBLAS  12550 GFLOP/s (cuBLAS reference)
+conv2 via im2col (1500x1280x3840)    PASS  max_err=7.16e-07     2.691 ms     5480 GFLOP/s
+    for comparison: naive    227 GFLOP/s, cuBLAS  13184 GFLOP/s (cuBLAS reference)
+
+Task 3 (tiled GEMM): ALL PASS

@@ -1,0 +1,1 @@
+../../csrc/task2_reduce.cuh
