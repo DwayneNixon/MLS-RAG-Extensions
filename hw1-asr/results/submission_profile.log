@@ -1,0 +1,29 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=cuda  reduce=cuda  gemm=cuda  attention=cuda  provided=cuda
+Library: /home/s3024630/mls-cuda-final-check/hw1-asr/build/sm_75/libasr_kernels.so
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 79.0 s
+Audio: 3.50 s, mel features (1, 128, 3000), prompt 59 tokens
+  run 1:   1465.9 ms  (13 tokens)
+  run 2:   1468.8 ms  (13 tokens)
+  run 3:   1471.1 ms  (13 tokens)
+
+GPU time per operation, one transcription (1472.6 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       cuda        2757     1168.5   79.3%
+  attention    cuda         396      285.2   19.4%
+  rmsnorm      cuda         741        6.7    0.5%
+  silu_mul     cuda         364        3.6    0.2%
+  rope         cuda         396        3.1    0.2%
+  layernorm    cuda          65        2.5    0.2%
+  softmax      cuda          13        1.7    0.1%
+  embedding    cuda          13        1.2    0.1%
+  im2col       cuda           2        0.2    0.0%
+
+Time: 1468.6 ms per transcription (+/- 2.1 ms), 113.0 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: Concord returned to its place amidst the tents.
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 100.0%
+Status: PASS
