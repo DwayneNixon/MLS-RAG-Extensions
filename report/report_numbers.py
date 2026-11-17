@@ -386,6 +386,83 @@ def rag_practice_depth():
     check("k=2 time saving on Development", 1 - 2271 / 4269, 0.47, "Table 3", fmt="{:.2f}")
 
 
+def ols_latency(rows):
+    """Least squares: generation_ms = b0 + b1 * answer_tokens + b2 * prompt_tokens."""
+    y = [r["timing"]["generation_ms"] for r in rows]
+    X = [[1.0, r["answer_tokens"], r["prompt_tokens"]] for r in rows]
+    M = [[sum(x[i] * x[j] for x in X) for j in range(3)] + [sum(x[i] * v for x, v in zip(X, y))]
+         for i in range(3)]
+    for i in range(3):
+        piv = M[i][i]
+        M[i] = [v / piv for v in M[i]]
+        for j in range(3):
+            if j != i:
+                f = M[j][i]
+                M[j] = [a - f * b for a, b in zip(M[j], M[i])]
+    b = [M[i][3] for i in range(3)]
+    pred = [b[0] + b[1] * x[1] + b[2] * x[2] for x in X]
+    my = mean(y)
+    r2 = 1 - sum((u - v) ** 2 for u, v in zip(y, pred)) / sum((u - my) ** 2 for u in y)
+    return b, r2
+
+
+def rag_followup_saved():
+    """Follow-up checks on saved data (no new runs): latency model, k=2 and k=20 subgroups,
+    judge stability. Reference values are the figures proposed for the report."""
+    section("Follow-up on saved data: what generation time depends on")
+    dev = [r for c in ("k2", "k5", "k5b", "k10", "k20") for r in jsonl(f"phase3/{c}/answers.jsonl")[1:]]
+    pra = [r for c in ("k2", "k5", "k20") for r in jsonl(f"practice_depth/{c}/answers.jsonl")[1:]]
+    for name, rows, want in (("Development", dev, (16.1, 0.09, 0.99)), ("Practice", pra, (17.0, 0.06, 0.96))):
+        b, r2 = ols_latency(rows)
+        s = "rag/results/phase3/*/answers.jsonl" if name == "Development" else "rag/results/practice_depth/*/answers.jsonl"
+        check(f"{name}: ms per answer token (n={len(rows)}, warm-up rows dropped)", b[1], want[0], s, fmt="{:.1f}")
+        check(f"{name}: ms per prompt token", b[2], want[1], s, fmt="{:.2f}")
+        check(f"{name}: R^2", r2, want[2], s, fmt="{:.2f}")
+
+    section("Follow-up on saved data: depth subgroups by labelled evidence")
+    dsc, reps, shared, dret = load_dev()
+    psc = {a: {r["query_id"]: r["normalised_answer_score"]
+               for r in jsonl(f"practice_depth/{a}/judge/answer_judge_per_query.jsonl")} for a in ("k5", "k2", "k20")}
+    pret = {r["query_id"]: r for r in jsonl("retrieval_k_practice.jsonl")}
+    nrel = lambda ret, q, k: round(k * ret[q][f"Precision@{k}"])
+    for split, sc, ret, base, src in (
+            ("Development", dsc, dret, sorted(shared), "rag/results/phase3 + retrieval_k_dev.jsonl"),
+            ("Practice", psc, pret, None, "rag/results/practice_depth + retrieval_k_practice.jsonl")):
+        want2 = {"Development": ((16, -.130, .071), (107, .023, .025)),
+                 "Practice": ((35, -.174, .053), (312, .011, .016))}[split]
+        qs = base or sorted(set(sc["k2"]) & set(sc["k5"]))
+        drop = [q for q in qs if nrel(ret, q, 5) > 0 and nrel(ret, q, 2) == 0]
+        rest = [q for q in qs if q not in drop]
+        for lab, g, (wn, wm, ws) in (("k=2 drops every gold record k=5 had", drop, want2[0]),
+                                     ("elsewhere", rest, want2[1])):
+            d = paired(sc["k2"], sc["k5"], g)
+            check(f"{split}, k2 minus k5, {lab}: n", len(d), wn, src, fmt="{:.0f}")
+            check(f"{split}, k2 minus k5, {lab}: mean", mean(d), wm, src)
+            check(f"{split}, k2 minus k5, {lab}: SE", se(d), ws, src)
+        want20 = {"Development": ((23, .083, .043), (30, .006, .065), (70, -.015, .031)),
+                  "Practice": ((51, .043, .045), (58, -.024, .050), (239, -.033, .019))}[split]
+        qs = base or sorted(set(sc["k20"]) & set(sc["k5"]))
+        groups = (("supplies the first gold record", [q for q in qs if nrel(ret, q, 5) == 0 and nrel(ret, q, 20) > 0]),
+                  ("adds further gold", [q for q in qs if nrel(ret, q, 5) > 0 and nrel(ret, q, 20) > nrel(ret, q, 5)]),
+                  ("adds no gold", [q for q in qs if nrel(ret, q, 20) == nrel(ret, q, 5)]))
+        for (lab, g), (wn, wm, ws) in zip(groups, want20):
+            d = paired(sc["k20"], sc["k5"], g)
+            check(f"{split}, k20 minus k5, {lab}: n", len(d), wn, src, fmt="{:.0f}")
+            check(f"{split}, k20 minus k5, {lab}: mean", mean(d), wm, src, tol=0.0011)
+            check(f"{split}, k20 minus k5, {lab}: SE", se(d), ws, src)
+
+    section("Follow-up on saved data: judge stability over three judgements of the same k5 answers")
+    tot = {}
+    for r in jsonl("phase3/k5/judge/judge_cache.jsonl"):
+        x = r["result"]
+        tot.setdefault(r["query_id"], []).append(x["correctness"] + x["grounding"] + x["completeness"])
+    spread = [max(v[:3]) - min(v[:3]) for v in tot.values() if len(v) >= 3]
+    src = "rag/results/phase3/k5/judge/judge_cache.jsonl"
+    check("queries with three judgements", len(spread), 125, src, fmt="{:.0f}")
+    check("queries whose three totals are not all equal", sum(s > 0 for s in spread), 28, src, fmt="{:.0f}")
+    check("queries whose totals span 3+ points of 12", sum(s >= 3 for s in spread), 13, src, fmt="{:.0f}")
+
+
 # ----------------------------------------------------------------------------
 # ASR: values traced to saved logs
 # ----------------------------------------------------------------------------
@@ -619,7 +696,7 @@ def main():
     print("Numbers quoted in the report, recomputed from saved files")
     print(f"Repository root: {ROOT.name}")
     for fn in (rag_dev, rag_rerank, rag_practice_tuning, rag_practice_minilm, rag_cost, rag_practice_depth,
-               asr_table, asr_rope_reduce, asr_gemm, asr_attention, asr_v2, asr_blocks, derivations):
+               rag_followup_saved, asr_table, asr_rope_reduce, asr_gemm, asr_attention, asr_v2, asr_blocks, derivations):
         block(fn)
     print("\n=== SUMMARY ===")
     print(f"values checked: {COUNT[0]}")

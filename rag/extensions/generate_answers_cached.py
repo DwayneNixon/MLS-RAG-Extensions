@@ -23,10 +23,18 @@ def load_cache(path: Path):
     return cache
 
 class ELMGeneratorWithUsage(ELMGenerator):
-    """Same as ELMGenerator, but also returns token counts and finish reason."""
+    """Same as ELMGenerator, but also returns token counts and finish reason.
+
+    max_tokens=None (the default) sends no limit, exactly as before; a number caps
+    the answer length (used only by the answer-length follow-up)."""
+
+    def __init__(self, max_tokens=None):
+        super().__init__()
+        self.max_tokens = max_tokens
 
     def generate(self, prompt:str):
         start = time.perf_counter()
+        extra = {"max_tokens": self.max_tokens} if self.max_tokens else {}
         response = self.client.chat.completions.create(
             model = self.model,
             messages = [
@@ -39,7 +47,8 @@ class ELMGeneratorWithUsage(ELMGenerator):
                 },
                 {"role": "user", "content": prompt},
             ],
-            temperature = 0.1
+            temperature = 0.1,
+            **extra,
         )
         elapsed_ms = (time.perf_counter() - start) * 1000.0
         usage = response.usage

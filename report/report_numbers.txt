@@ -1,5 +1,5 @@
 Numbers quoted in the report, recomputed from saved files
-Repository root: edin-mls-26-autumn
+Repository root: MLS-RAG-Extensions-MLS-Submission-Draft
 
 === Sample sizes (Section 3) ===
   OK   Development queries: 125  (report: 125)  [rag/results/retrieval_k_dev.jsonl]
@@ -198,6 +198,51 @@ Repository root: edin-mls-26-autumn
   OK   k=2 time saving on Practice: 0.36  (report: 0.36)  [practice_depth answers]
   OK   k=2 time saving on Development: 0.47  (report: 0.47)  [Table 3]
 
+=== Follow-up on saved data: what generation time depends on ===
+  OK   Development: ms per answer token (n=620, warm-up rows dropped): 16.1  (report: 16.1)  [rag/results/phase3/*/answers.jsonl]
+  OK   Development: ms per prompt token: 0.09  (report: 0.09)  [rag/results/phase3/*/answers.jsonl]
+  OK   Development: R^2: 0.99  (report: 0.99)  [rag/results/phase3/*/answers.jsonl]
+  OK   Practice: ms per answer token (n=1047, warm-up rows dropped): 17.0  (report: 17.0)  [rag/results/practice_depth/*/answers.jsonl]
+  OK   Practice: ms per prompt token: 0.06  (report: 0.06)  [rag/results/practice_depth/*/answers.jsonl]
+  OK   Practice: R^2: 0.96  (report: 0.96)  [rag/results/practice_depth/*/answers.jsonl]
+
+=== Follow-up on saved data: depth subgroups by labelled evidence ===
+  OK   Development, k2 minus k5, k=2 drops every gold record k=5 had: n: 16  (report: 16)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k2 minus k5, k=2 drops every gold record k=5 had: mean: -0.130  (report: -0.130)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k2 minus k5, k=2 drops every gold record k=5 had: SE: 0.071  (report: 0.071)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k2 minus k5, elsewhere: n: 107  (report: 107)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k2 minus k5, elsewhere: mean: 0.023  (report: 0.023)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k2 minus k5, elsewhere: SE: 0.025  (report: 0.025)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, supplies the first gold record: n: 23  (report: 23)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, supplies the first gold record: mean: 0.083  (report: 0.083)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, supplies the first gold record: SE: 0.043  (report: 0.043)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds further gold: n: 30  (report: 30)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds further gold: mean: 0.006  (report: 0.006)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds further gold: SE: 0.065  (report: 0.065)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds no gold: n: 70  (report: 70)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds no gold: mean: -0.015  (report: -0.015)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Development, k20 minus k5, adds no gold: SE: 0.031  (report: 0.031)  [rag/results/phase3 + retrieval_k_dev.jsonl]
+  OK   Practice, k2 minus k5, k=2 drops every gold record k=5 had: n: 35  (report: 35)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k2 minus k5, k=2 drops every gold record k=5 had: mean: -0.174  (report: -0.174)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k2 minus k5, k=2 drops every gold record k=5 had: SE: 0.053  (report: 0.053)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k2 minus k5, elsewhere: n: 312  (report: 312)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k2 minus k5, elsewhere: mean: 0.011  (report: 0.011)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k2 minus k5, elsewhere: SE: 0.016  (report: 0.016)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, supplies the first gold record: n: 51  (report: 51)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, supplies the first gold record: mean: 0.042  (report: 0.043)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, supplies the first gold record: SE: 0.045  (report: 0.045)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds further gold: n: 58  (report: 58)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds further gold: mean: -0.024  (report: -0.024)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds further gold: SE: 0.050  (report: 0.050)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds no gold: n: 239  (report: 239)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds no gold: mean: -0.033  (report: -0.033)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+  OK   Practice, k20 minus k5, adds no gold: SE: 0.019  (report: 0.019)  [rag/results/practice_depth + retrieval_k_practice.jsonl]
+
+=== Follow-up on saved data: judge stability over three judgements of the same k5 answers ===
+  OK   queries with three judgements: 125  (report: 125)  [rag/results/phase3/k5/judge/judge_cache.jsonl]
+  OK   queries whose three totals are not all equal: 28  (report: 28)  [rag/results/phase3/k5/judge/judge_cache.jsonl]
+  OK   queries whose totals span 3+ points of 12: 13  (report: 13)  [rag/results/phase3/k5/judge/judge_cache.jsonl]
+
 === ASR: transcription latency table ===
   OK   PyTorch: ms: 768.9  (report: 768.9)  [hw1-asr/results/baseline_profile.txt]
   OK   PyTorch: spread: 1.1  (report: 1.1)  [hw1-asr/results/baseline_profile.txt]
@@ -368,6 +413,6 @@ Repository root: edin-mls-26-autumn
   OK   median generation s at k=5: 4.3  (report: 4.3)  [Table 3]
 
 === SUMMARY ===
-values checked: 326
+values checked: 365
 values that differ from the report: 0
 result files not found: 0
