@@ -1,0 +1,2 @@
+variant v3 from extensions/gemm_v3, extra flags: ''
+lines differing from extensions/gemm_v3/task3_gemm.cu: 0

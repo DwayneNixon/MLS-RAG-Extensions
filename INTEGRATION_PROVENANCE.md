@@ -1,5 +1,7 @@
 # Integration provenance and decisions — 14 November 2026
 
+> **Amendment, 17 November 2026:** the GEMM promotion described below has been **reverted**. `hw1-asr/csrc/task3_gemm.cu` is again the completed assigned tile-32 GEMM (restored byte for byte from the archived copy, which has been removed because the task file now holds it). The register-tiled GEMMs are extensions only (`hw1-asr/extensions/gemm_v2/`, `gemm_v3/`). See `hw1-asr/FINAL_CUDA.md`.
+
 ## Exact source commits
 
 - Dwayne: [MLS-Dwayne](https://github.com/DwayneNixon/MLS-RAG-Extensions/tree/MLS-Dwayne), `45215acf37713659536adcda491556024d5058ef` (9 November 2026).

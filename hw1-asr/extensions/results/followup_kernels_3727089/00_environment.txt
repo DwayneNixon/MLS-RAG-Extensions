@@ -1,0 +1,11 @@
+2026-11-17T15:13:15+00:00
+opencast.inf.ed.ac.uk
+GPU 0: NVIDIA GeForce RTX 2080 Ti (UUID: GPU-c1e706f0-ad70-11ca-7455-776990f73c55)
+name, uuid, compute_cap
+NVIDIA GeForce RTX 2080 Ti, GPU-c1e706f0-ad70-11ca-7455-776990f73c55, 7.5
+part: kernels
+commit: 733784967df5783f282ce6eb1e60cece27242395
+extensions/gemm_v2/task3_gemm.cu sha256: 03208afd9e13bb5292c33150451ca9c048138b77f3fd4579dc25f093c19f0707
+extensions/gemm_v3/task3_gemm.cu sha256: 1c5cedc3ff1f83c12622742fcd9b7e4d13f9717c23ec3845d96945a4ecd6c29f
+ncu: /opt/cuda-12.8.0/bin/ncu
+2026-11-17T15:24:51+00:00

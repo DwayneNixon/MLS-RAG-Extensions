@@ -1,0 +1,30 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=cuda  reduce=cuda  gemm=cuda  attention=cuda  provided=cuda
+Library: /home/UUN/edin-mls-26-autumn/hw1-asr/build/sm_75/libasr_kernels.so
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 17.5 s
+Audio: 24.35 s, mel features (1, 128, 3000), prompt 319 tokens
+  run 1:  14368.4 ms  (63 tokens)
+  run 2:  14486.9 ms  (63 tokens)
+  run 3:  14552.8 ms  (63 tokens)
+
+GPU time per operation, one transcription (14645.1 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       cuda       12607    13142.7   89.7%
+  attention    cuda        1796     1276.8    8.7%
+  silu_mul     cuda        1764       84.0    0.6%
+  rope         cuda        1796       71.5    0.5%
+  rmsnorm      cuda        3591       52.0    0.4%
+  softmax      cuda          63        8.8    0.1%
+  embedding    cuda          63        6.7    0.0%
+  layernorm    cuda          65        2.5    0.0%
+  im2col       cuda           2        0.2    0.0%
+
+Time: 14469.4 ms per transcription (+/- 76.3 ms), 229.7 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: What are the steps involved in purchasing a residential property? What happens to a call option when a company undergoes a cash or stock acquisition? Is it advantageous to convert non investment real estate into rental property if I need to make significant repairs? USA, Missouri. What is the significance of investing in potatoes?
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 25.0%
+Status: FAIL
+exit status: 1

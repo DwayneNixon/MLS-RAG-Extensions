@@ -1,0 +1,30 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=cuda  reduce=cuda  gemm=cuda  attention=cuda  provided=cuda
+Library: /tmp/UUN/followup_3727090/v2/build/libasr_kernels.so
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 20.7 s
+Audio: 3.50 s, mel features (1, 128, 3000), prompt 59 tokens
+  run 1:   1563.4 ms  (13 tokens)
+  run 2:   1567.1 ms  (13 tokens)
+  run 3:   1569.3 ms  (13 tokens)
+
+GPU time per operation, one transcription (1574.4 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       cuda        2757     1277.1   81.1%
+  attention    cuda         396      278.7   17.7%
+  rmsnorm      cuda         741        6.5    0.4%
+  silu_mul     cuda         364        3.6    0.2%
+  rope         cuda         396        3.1    0.2%
+  layernorm    cuda          65        2.5    0.2%
+  softmax      cuda          13        1.6    0.1%
+  embedding    cuda          13        1.2    0.1%
+  im2col       cuda           2        0.2    0.0%
+
+Time: 1566.6 ms per transcription (+/- 2.4 ms), 120.5 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: Concord returned to its place amidst the tents.
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 100.0%
+Status: PASS
+exit status: 0

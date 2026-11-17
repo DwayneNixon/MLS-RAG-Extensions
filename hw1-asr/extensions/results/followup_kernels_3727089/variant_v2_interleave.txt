@@ -1,0 +1,10 @@
+variant v2_interleave from extensions/gemm_v2, extra flags: ''
+lines differing from extensions/gemm_v2/task3_gemm.cu: 2
+112c112
+<       for (int j = 0; j < TN; ++j) b[j] = ws[kk][tx * TN + j];
+---
+>       for (int j = 0; j < TN; ++j) b[j] = ws[kk][tx + j * (BN / TN)];
+126c126
+<       int r = row0 + ty * TM + i, c = col0 + tx * TN + j;
+---
+>       int r = row0 + ty * TM + i, c = col0 + tx + j * (BN / TN);

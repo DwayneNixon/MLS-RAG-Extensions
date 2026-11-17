@@ -4,10 +4,10 @@ This is a working inventory, not evidence of a completed hand-in. Official mater
 
 ## Code
 
-- [x] Five task-source files are present at `hw1-asr/csrc/task1_rope.cu`, `task2_reduce.cuh`, `task2_reduce.cu`, `task3_gemm.cu` and `task4_attention.cu` (Nitay sources for Tasks 1/2/4; GEMM promoted from tested v2 BK=32).
+- [x] Five task-source files are present at `hw1-asr/csrc/task1_rope.cu`, `task2_reduce.cuh`, `task2_reduce.cu`, `task3_gemm.cu` and `task4_attention.cu` (the completed assigned kernels for Tasks 1-4, including the completed tile-32 GEMM).
 - [x] Dwayne's different five-file implementation is preserved at `hw1-asr/extensions/dwayne_variant/csrc/`.
 - [x] Register-tiled/shape-aware GEMM v2 and its separately recorded tests are at `hw1-asr/extensions/gemm_v2/` and `hw1-asr/extensions/results/`.
-- [x] Select **register-tiled GEMM v2 with BK=32** as the final CUDA source candidate, promoted into `hw1-asr/csrc/task3_gemm.cu`. Original Nitay v1 and Dwayne's variant are archived. **Fresh integrated validation still outstanding**.
+- [x] `csrc/task3_gemm.cu` is the completed assigned tile-32 GEMM (the v2 BK=32 promotion was reverted on 17 November). Register-tiled GEMMs remain extensions only: `extensions/gemm_v2/`, `extensions/gemm_v3/`.
 - [ ] Verify that the chosen five-file snapshot is what the final submitted report describes; do not modify course-provided Python, provided kernels or tests in the hand-in.
 
 ## Required ASR evidence and discussion
@@ -16,7 +16,7 @@ This is a working inventory, not evidence of a completed hand-in. Official mater
 - [x] Saved profiling output: `hw1-asr/results/final_profile.txt`, `final_baseline_profile.txt` and related measurements.
 - [x] Saved GPU identification: `hw1-asr/results/final_gpu.txt` (RTX 2080 Ti).
 - [x] Task-specific Try This measurements and negative results are preserved in `hw1-asr/results/`, `hw1-asr/extensions/results/`, and Dwayne's `FINDINGS.md` project notes.
-- [ ] **Required final gate**: on a single RTX 2080 Ti GPU node, clean-build the new standard `csrc/` version, confirm **33/33 tests PASS**, run `./run.sh --profile` with Status PASS, and save `nvidia-smi -L` from that same node. The existing full 33-case log is from v1, while BK=32's 10-case and transcription logs were generated in the isolated test variant. See `hw1-asr/FINAL_CUDA.md`.
+- [ ] **Required final gate**: run `sbatch extensions/run_verify_submission.sbatch` from `hw1-asr` on the final checkout: 33/33 tests, Status PASS transcription, GEMM racecheck and GPU identity in one job.
 - [ ] Incorporate answers to all guide report questions and at least one measured Try This per task into the joint report or allowed supporting material.
 
 ## RAG experiment / reproducibility evidence

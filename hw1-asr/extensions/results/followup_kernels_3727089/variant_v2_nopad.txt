@@ -1,0 +1,8 @@
+variant v2_nopad from extensions/gemm_v2, extra flags: ''
+lines differing from extensions/gemm_v2/task3_gemm.cu: 2
+82,83c82,83
+<   __shared__ float xs[BK][BM + 1];
+<   __shared__ float ws[BK][BN + 1];
+---
+>   __shared__ float xs[BK][BM];
+>   __shared__ float ws[BK][BN];

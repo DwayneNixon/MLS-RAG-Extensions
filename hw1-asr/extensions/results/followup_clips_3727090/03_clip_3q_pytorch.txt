@@ -1,0 +1,29 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=torch  reduce=torch  gemm=torch  attention=torch  provided=torch
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 15.8 s
+Audio: 14.85 s, mel features (1, 128, 3000), prompt 200 tokens
+  run 1:   3477.0 ms  (41 tokens)
+  run 2:   3487.3 ms  (41 tokens)
+  run 3:   3498.7 ms  (41 tokens)
+
+GPU time per operation, one transcription (3514.6 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       torch       8273     2993.1   85.2%
+  attention    torch       1180      277.7    7.9%
+  rope         torch       1180      109.0    3.1%
+  rmsnorm      torch       2337       66.8    1.9%
+  silu_mul     torch       1148       60.6    1.7%
+  embedding    torch         41        3.2    0.1%
+  layernorm    torch         65        2.6    0.1%
+  softmax      torch         41        1.1    0.0%
+  im2col       torch          2        0.4    0.0%
+
+Time: 3487.7 ms per transcription (+/- 8.9 ms), 85.1 ms per token
+Peak GPU memory: 8.88 GiB
+Transcription: How do I file taxes for the sale of stocks from Form 1099-B? What factors do you consider when speculating effectively? What are the advantages and disadvantages of structured deposits?
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 12.5%
+Status: FAIL
+exit status: 1

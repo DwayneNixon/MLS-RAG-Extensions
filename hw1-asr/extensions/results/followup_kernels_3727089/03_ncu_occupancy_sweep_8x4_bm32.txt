@@ -1,0 +1,21 @@
+==PROF== Connected to process 100461 (/tmp/UUN/followup_3727089/sweep_8x4_bm32/build/bench_linear)
+==PROF== Profiling "linear_regtile_kernel": 0%....50%....100% - 1 pass
+variant BM=32 TM=8 TN=4 BN=64
+     M      N      K         ms    GFLOP/s   blocks  threads
+    64   2048   2048     0.5210     1030.4       64       64
+==PROF== Disconnected from process 100461
+[100461] bench_linear@127.0.0.1
+  void linear_regtile_kernel<32>(const float *, const float *, const float *, float *, int, int, int, int) (32, 2, 1)x(64, 1, 1), Context 1, Stream 7, Device 0, CC 7.5
+    Section: Command line profiler metrics
+    ------------------------------------------------- --------------- ------------
+    Metric Name                                           Metric Unit Metric Value
+    ------------------------------------------------- --------------- ------------
+    launch__block_size                                                          64
+    launch__grid_size                                                           64
+    launch__occupancy_limit_registers                           block           10
+    launch__registers_per_thread                      register/thread           90
+    sm__maximum_warps_per_active_cycle_pct                          %        62.50
+    sm__warps_active.avg.pct_of_peak_sustained_active               %         6.25
+    ------------------------------------------------- --------------- ------------
+
+exit status: 0

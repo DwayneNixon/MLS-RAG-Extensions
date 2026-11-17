@@ -1,0 +1,2 @@
+variant v3_bk32 from extensions/gemm_v3, extra flags: '-DV3_BK_ENC=32 -DV3_BK_DEC=32'
+lines differing from extensions/gemm_v3/task3_gemm.cu: 0

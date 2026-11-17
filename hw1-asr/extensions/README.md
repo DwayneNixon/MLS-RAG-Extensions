@@ -1,4 +1,4 @@
-> **Integration update (14 November 2026):** This page records the historical *separately built* GEMM v2 experiments. The final CUDA hand-in **candidate** now places the tested v2 register-tiled algorithm with `BK=32` at the normal `hw1-asr/csrc/task3_gemm.cu` path. The original v1 remains at `hw1-asr/extensions/nitay_v1_task3_gemm.cu`, while the original v2 BK=16 remains in this extension directory. The 13 November BK=32 sweep passed 10/10 GEMM cases and the full-model transcription; integrated 33/33 tests and same-node profile are still to be run. See [`../FINAL_CUDA.md`](../FINAL_CUDA.md).
+> **Update (17 November 2026):** the task file `hw1-asr/csrc/task3_gemm.cu` is the completed assigned tile-32 GEMM. The register-tiled GEMMs in this folder (`gemm_v2/`, and `gemm_v3/` added on 17 November) are extensions, built separately with `make SRC=extensions/gemm_vN BUILD=...`; they never replace the task file. An earlier draft had promoted v2 with BK=32 into `csrc/`; that was reverted.
 
 # HW1 extension: register-tiled GEMM (v2)
 

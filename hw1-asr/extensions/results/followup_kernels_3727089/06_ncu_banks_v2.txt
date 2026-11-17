@@ -1,0 +1,19 @@
+==PROF== Connected to process 102052 (/tmp/UUN/followup_3727089/v2/build/bench_linear)
+==PROF== Profiling "linear_regtile_kernel": 0%....50%....100% - 3 passes
+variant BM=0 TM=0 TN=0 BN=64
+     M      N      K         ms    GFLOP/s   blocks  threads
+    64   2048   2048     0.2765     1941.8        0        0
+==PROF== Disconnected from process 102052
+[102052] bench_linear@127.0.0.1
+  void linear_regtile_kernel<32>(const float *, const float *, const float *, float *, int, int, int, int) (32, 2, 1)x(128, 1, 1), Context 1, Stream 7, Device 0, CC 7.5
+    Section: Command line profiler metrics
+    -------------------------------------------------------- ----------- ------------
+    Metric Name                                              Metric Unit Metric Value
+    -------------------------------------------------------- ----------- ------------
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_ld.sum                  786,432
+    l1tex__data_bank_conflicts_pipe_lsu_mem_shared_op_st.sum                  393,216
+    smsp__sass_inst_executed_op_shared_ld.sum                       inst    1,835,008
+    smsp__sass_inst_executed_op_shared_st.sum                       inst      393,216
+    -------------------------------------------------------- ----------- ------------
+
+exit status: 0

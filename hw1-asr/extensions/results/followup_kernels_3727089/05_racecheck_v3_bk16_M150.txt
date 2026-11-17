@@ -1,0 +1,6 @@
+========= COMPUTE-SANITIZER
+variant BM=0 TM=0 TN=0 BN=64
+     M      N      K         ms    GFLOP/s   blocks  threads
+   150    100     33   108.5806        0.0        0        0
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)
+exit status: 0
