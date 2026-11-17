@@ -1,0 +1,34 @@
+Development queries paired in every report configuration: 123
+
+== 1. Latency and length, same session (first query of the run dropped as warm-up)
+k5         n=2  median answer tokens 378  median prompt tokens 958  median generation ms 6470  finish_reason {'stop': 2}
+k2         n=2  median answer tokens 302  median prompt tokens 498  median generation ms 5187  finish_reason {'stop': 2}
+k5_cap150  n=2  median answer tokens 150  median prompt tokens 958  median generation ms 2724  finish_reason {'length': 2}
+k5_short   n=2  median answer tokens 83  median prompt tokens 970  median generation ms 1844  finish_reason {'stop': 2}
+k5 vs k2 re-run: ratio of medians 1.25 (not within 10% of k2); median paired ratio 1.27 (n=2)
+k5_cap150 vs k2 re-run: ratio of medians 0.53 (not within 10% of k2); median paired ratio 0.53 (n=2)
+k5_short vs k2 re-run: ratio of medians 0.36 (not within 10% of k2); median paired ratio 0.37 (n=2)
+
+== 2-3. Quality against saved references (Development, judge repeat 1 for k5)
+k5_short minus saved k5, score: n=3  mean +0.083  SE 0.083  95% [-0.080, +0.247]
+    correctness (0-4): n=3  mean +0.000  SE 0.000  95% [+0.000, +0.000]
+    grounding (0-4): n=3  mean +0.667  SE 0.667  95% [-0.640, +1.973]
+    completeness (0-4): n=3  mean +0.333  SE 0.333  95% [-0.320, +0.987]
+k5_short minus saved k2, score: n=3  mean -0.333  SE 0.173  95% [-0.673, +0.007]
+    correctness (0-4): n=3  mean -1.333  SE 0.667  95% [-2.640, -0.027]
+    grounding (0-4): n=3  mean -1.000  SE 0.577  95% [-2.132, +0.132]
+    completeness (0-4): n=3  mean -1.667  SE 0.882  95% [-3.395, +0.062]
+  judge exclusions for k5_short: 0
+k5_cap150 minus saved k5, score: n=3  mean -0.083  SE 0.127  95% [-0.333, +0.166]
+    correctness (0-4): n=3  mean -0.667  SE 0.667  95% [-1.973, +0.640]
+    grounding (0-4): n=3  mean +0.000  SE 0.577  95% [-1.132, +1.132]
+    completeness (0-4): n=3  mean -0.333  SE 0.333  95% [-0.987, +0.320]
+k5_cap150 minus saved k2, score: n=3  mean -0.500  SE 0.289  95% [-1.066, +0.066]
+    correctness (0-4): n=3  mean -2.000  SE 1.155  95% [-4.263, +0.263]
+    grounding (0-4): n=3  mean -1.667  SE 1.202  95% [-4.022, +0.689]
+    completeness (0-4): n=3  mean -2.333  SE 1.202  95% [-4.689, +0.022]
+  judge exclusions for k5_cap150: 0
+
+== 4. Truncation in k5_cap150
+k5_cap150 minus saved k5, truncated (finish_reason=length): n=3  mean -0.083  SE 0.127  95% [-0.333, +0.166]
+k5_cap150, not truncated: n=0

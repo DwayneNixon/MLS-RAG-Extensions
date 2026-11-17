@@ -1,0 +1,73 @@
+===== PRE-FLIGHT =====
+2026-11-17T15:16:37+00:00
+damnii08.inf.ed.ac.uk
+Cached dev transcripts: 125 (expected 125)
+Commit: 733784967df5783f282ce6eb1e60cece27242395
+
+===== GENERATE (interleaved) 2026-11-17T15:16:37+00:00 =====
+[resume] k5: 0 done, 0 truncated line(s) dropped
+[resume] k2: 0 done, 0 truncated line(s) dropped
+[resume] k5_cap150: 0 done, 0 truncated line(s) dropped
+[resume] k5_short: 0 done, 0 truncated line(s) dropped
+Loading weights:   0%|          | 0/199 [00:00<?, ?it/s]Loading weights:   1%|          | 1/199 [00:00<01:29,  2.22it/s]Loading weights:   1%|          | 2/199 [00:00<01:20,  2.45it/s]Loading weights:   3%|▎         | 5/199 [00:00<00:28,  6.76it/s]Loading weights:   4%|▎         | 7/199 [00:01<00:36,  5.21it/s]Loading weights:   8%|▊         | 15/199 [00:06<01:37,  1.89it/s]Loading weights:   8%|▊         | 16/199 [00:07<01:30,  2.03it/s]Loading weights:  10%|█         | 20/199 [00:07<00:56,  3.16it/s]Loading weights:  11%|█         | 22/199 [00:07<00:54,  3.28it/s]Loading weights:  13%|█▎        | 26/199 [00:14<02:18,  1.25it/s]Loading weights:  17%|█▋        | 33/199 [00:16<01:30,  1.83it/s]Loading weights:  19%|█▊        | 37/199 [00:17<01:22,  1.97it/s]Loading weights:  25%|██▌       | 50/199 [00:17<00:33,  4.46it/s]Loading weights:  27%|██▋       | 54/199 [00:22<00:57,  2.51it/s]Loading weights:  32%|███▏      | 63/199 [00:23<00:37,  3.61it/s]Loading weights:  33%|███▎      | 66/199 [00:28<01:05,  2.03it/s]Loading weights:  37%|███▋      | 74/199 [00:28<00:41,  3.03it/s]Loading weights:  38%|███▊      | 76/199 [00:31<00:58,  2.10it/s]Loading weights:  45%|████▍     | 89/199 [00:31<00:26,  4.19it/s]Loading weights:  46%|████▌     | 92/199 [00:32<00:22,  4.73it/s]Loading weights:  48%|████▊     | 95/199 [00:33<00:24,  4.25it/s]Loading weights:  54%|█████▍    | 107/199 [00:33<00:12,  7.41it/s]Loading weights:  55%|█████▍    | 109/199 [00:34<00:13,  6.63it/s]Loading weights:  56%|█████▌    | 111/199 [00:35<00:17,  4.94it/s]Loading weights:  59%|█████▉    | 117/199 [00:35<00:12,  6.74it/s]Loading weights:  60%|█████▉    | 119/199 [00:36<00:15,  5.08it/s]Loading weights:  62%|██████▏   | 123/199 [00:36<00:11,  6.61it/s]Loading weights:  63%|██████▎   | 125/199 [00:36<00:10,  6.85it/s]Loading weights:  64%|██████▍   | 127/199 [00:37<00:09,  7.67it/s]Loading weights:  65%|██████▍   | 129/199 [00:47<01:27,  1.25s/it]Loading weights:  65%|██████▍   | 129/199 [00:50<01:27,  1.25s/it]Loading weights:  65%|██████▌   | 130/199 [00:54<02:18,  2.00s/it]Loading weights:  66%|██████▌   | 131/199 [00:54<01:57,  1.73s/it]Loading weights: 100%|██████████| 199/199 [00:54<00:00,  3.65it/s]
+This model was loaded in torch.float16 on CPU. Depending on your CPU, inference may be significantly slower than with torch.float32. Consider comparing inference speeds by loading with `model_kwargs={"dtype": torch.float32}`.
+q_dc0daa63c6ad372c k5 398 235 stop 5209
+q_dc0daa63c6ad372c k2 143 22 stop 389
+q_dc0daa63c6ad372c k5_cap150 398 150 length 2489
+q_dc0daa63c6ad372c k5_short 411 63 stop 1122
+q_33fd7baba78a1358 k2 461 332 stop 5788
+q_33fd7baba78a1358 k5_cap150 848 150 length 2608
+q_33fd7baba78a1358 k5_short 861 72 stop 1393
+q_33fd7baba78a1358 k5 848 348 stop 6255
+q_01e721befe9d0dd7 k5_cap150 1067 150 length 2840
+q_01e721befe9d0dd7 k5_short 1080 94 stop 2296
+q_01e721befe9d0dd7 k5 1067 407 stop 6685
+q_01e721befe9d0dd7 k2 535 272 stop 4586
+[done] incomplete arms: none
+
+===== JUDGE k5_short 2026-11-17T15:22:39+00:00 =====
+q_dc0daa63c6ad372c: 0.000
+q_33fd7baba78a1358: 0.417
+q_01e721befe9d0dd7: 0.583
+
+===== JUDGE k5_cap150 2026-11-17T15:22:49+00:00 =====
+q_dc0daa63c6ad372c: 0.000
+q_33fd7baba78a1358: 0.500
+q_01e721befe9d0dd7: 0.000
+
+===== ANALYSIS 2026-11-17T15:23:02+00:00 =====
+Development queries paired in every report configuration: 123
+
+== 1. Latency and length, same session (first query of the run dropped as warm-up)
+k5         n=2  median answer tokens 378  median prompt tokens 958  median generation ms 6470  finish_reason {'stop': 2}
+k2         n=2  median answer tokens 302  median prompt tokens 498  median generation ms 5187  finish_reason {'stop': 2}
+k5_cap150  n=2  median answer tokens 150  median prompt tokens 958  median generation ms 2724  finish_reason {'length': 2}
+k5_short   n=2  median answer tokens 83  median prompt tokens 970  median generation ms 1844  finish_reason {'stop': 2}
+k5 vs k2 re-run: ratio of medians 1.25 (not within 10% of k2); median paired ratio 1.27 (n=2)
+k5_cap150 vs k2 re-run: ratio of medians 0.53 (not within 10% of k2); median paired ratio 0.53 (n=2)
+k5_short vs k2 re-run: ratio of medians 0.36 (not within 10% of k2); median paired ratio 0.37 (n=2)
+
+== 2-3. Quality against saved references (Development, judge repeat 1 for k5)
+k5_short minus saved k5, score: n=3  mean +0.083  SE 0.083  95% [-0.080, +0.247]
+    correctness (0-4): n=3  mean +0.000  SE 0.000  95% [+0.000, +0.000]
+    grounding (0-4): n=3  mean +0.667  SE 0.667  95% [-0.640, +1.973]
+    completeness (0-4): n=3  mean +0.333  SE 0.333  95% [-0.320, +0.987]
+k5_short minus saved k2, score: n=3  mean -0.333  SE 0.173  95% [-0.673, +0.007]
+    correctness (0-4): n=3  mean -1.333  SE 0.667  95% [-2.640, -0.027]
+    grounding (0-4): n=3  mean -1.000  SE 0.577  95% [-2.132, +0.132]
+    completeness (0-4): n=3  mean -1.667  SE 0.882  95% [-3.395, +0.062]
+  judge exclusions for k5_short: 0
+k5_cap150 minus saved k5, score: n=3  mean -0.083  SE 0.127  95% [-0.333, +0.166]
+    correctness (0-4): n=3  mean -0.667  SE 0.667  95% [-1.973, +0.640]
+    grounding (0-4): n=3  mean +0.000  SE 0.577  95% [-1.132, +1.132]
+    completeness (0-4): n=3  mean -0.333  SE 0.333  95% [-0.987, +0.320]
+k5_cap150 minus saved k2, score: n=3  mean -0.500  SE 0.289  95% [-1.066, +0.066]
+    correctness (0-4): n=3  mean -2.000  SE 1.155  95% [-4.263, +0.263]
+    grounding (0-4): n=3  mean -1.667  SE 1.202  95% [-4.022, +0.689]
+    completeness (0-4): n=3  mean -2.333  SE 1.202  95% [-4.689, +0.022]
+  judge exclusions for k5_cap150: 0
+
+== 4. Truncation in k5_cap150
+k5_cap150 minus saved k5, truncated (finish_reason=length): n=3  mean -0.083  SE 0.127  95% [-0.333, +0.166]
+k5_cap150, not truncated: n=0
+===== COMPLETED 2026-11-17T15:23:02+00:00 =====

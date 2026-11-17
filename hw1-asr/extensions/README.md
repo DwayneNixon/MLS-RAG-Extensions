@@ -78,3 +78,14 @@ odd-sized boundary cases).
 | `v2_racecheck.txt`, `v2_dispatch_racecheck.txt` | racecheck, 0 hazards |
 | `v2_e2e_64x64_pad.txt` | whole model, 64x64 padded |
 | `v2_dispatch_test.txt`, `v2_e2e_dispatch.txt` | final version: kernel tests and whole model |
+
+## Follow-up results (17 November 2026)
+
+| Folder | What it holds | Notes |
+|---|---|---|
+| `results/followup_kernels_3727089/` | M sweep (4x4 / 8x4, 32- / 64-row tiles), ncu occupancy and bank-conflict counters, v2 vs v3 (tests, racecheck on both dispatch paths, whole-model time) | Ran on a node where PyTorch took 1,270 ms (about 1.6x slower than other nodes). Compare variants within this job; take ratios to PyTorch from the clips job. |
+| `results/followup_clips_3727464/` | PyTorch, assigned (tile-32), v2 and v3 on the reference clip and on 1-, 3- and 6-question Practice clips (`make_clips.py`, question IDs in `clips.json`) | **Cite this one.** PyTorch 817.6 ms at start, 816.2 ms at end. |
+| `results/followup_clips_3727090/` | The same clips job, run **before** `csrc/task3_gemm.cu` was restored | **Do not cite its "assigned" rows**: they are GEMM v2 with BK=32, not the assigned kernel. Superseded by 3727464. |
+| `results/verify_submission_3727463/` | Final check of `csrc/`: 33/33 tests, Status PASS, GEMM racecheck 0 hazards, 2,716.1 ms | The submission gate. |
+
+All numbers are re-checked by `report/report_numbers.py`.

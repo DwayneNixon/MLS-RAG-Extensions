@@ -675,6 +675,132 @@ def asr_blocks():
     check("128-column tile, ms per transcription", grab(f"{d}/e2e_tm4_tn4_bn128_bk16.txt", "Time:", TIME), 1859.2, f"{src}/e2e_tm4_tn4_bn128_bk16.txt", fmt="{:.1f}")
 
 
+def asr_followup():
+    """17 November follow-up jobs: M sweep, profiler counters, v3, longer clips, final verification."""
+    R = "extensions/results"
+    K = f"{R}/followup_kernels_3727089"
+    C = f"{R}/followup_clips_3727464"
+    V = f"{R}/verify_submission_3727463"
+    sweep_re = lambda m: rf"^\s+{m}\s+2048\s+2048\s"
+    gf = r"^\s+\d+\s+\d+\s+\d+\s+[\d.]+\s+([\d.]+)"
+
+    section("ASR follow-up: M sweep at N = K = 2048 (one job; GFLOP/s)")
+    want = {"4x4_bm32": {64: 1997, 128: 3235, 256: 3289, 1500: 3828},
+            "4x4_bm64": {64: 1762, 128: 3135, 256: 3544, 1500: 4005},
+            "8x4_bm32": {64: 1185, 128: 2341, 256: 3961, 1500: 4935},
+            "8x4_bm64": {64: 1398, 128: 2775, 256: 4772, 1500: 5610}}
+    got = {}
+    for v, ms in want.items():
+        for m, w in ms.items():
+            got[(v, m)] = grab(f"{K}/02_sweep_{v}.txt", sweep_re(m), gf)
+            check(f"{v} at M={m}", got[(v, m)], w, f"hw1-asr/{K}/02_sweep_{v}.txt", fmt="{:.0f}")
+    for bm in (32, 64):
+        first = next((m for m in (16, 32, 64, 96, 128, 256, 512, 1500)
+                      if grab(f"{K}/02_sweep_8x4_bm{bm}.txt", sweep_re(m), gf)
+                      >= grab(f"{K}/02_sweep_4x4_bm{bm}.txt", sweep_re(m), gf)), "none")
+        check(f"BM={bm}: smallest swept M where 8x4 >= 4x4", str(first), "256", f"hw1-asr/{K}/02_sweep_*_bm{bm}.txt")
+    check("8x4 slowdown against 4x4 at M=64, 32-row tiles", 1 - 1185 / 1997, 0.41, "arithmetic", fmt="{:.2f}")
+
+    section("ASR follow-up: profiler counters (ncu, M = 64, one job)")
+    for v, regs, warps in (("4x4_bm32", 64, 12.50), ("8x4_bm32", 90, 6.25)):
+        f = f"{K}/03_ncu_occupancy_sweep_{v}.txt"
+        check(f"{v} registers per thread", grab(f, r"launch__registers_per_thread", r"(\d+)\s*$"), regs, f"hw1-asr/{f}", fmt="{:.0f}")
+        check(f"{v} active warps, % of SM maximum", grab(f, r"sm__warps_active", r"([\d.]+)\s*$"), warps, f"hw1-asr/{f}", fmt="{:.2f}")
+    num = r"([\d,]+)\s*$"
+    for v, ld, st in (("v2", 786432, 393216), ("v2_nopad", 0, 5898240), ("v2_interleave", 0, 393216)):
+        f = f"{K}/06_ncu_banks_{v}.txt"
+        g = lambda pat: next((float(re.search(num, x).group(1).replace(",", "")) for x in log(f)
+                              if re.search(pat, x) and re.search(num, x)), "not found")
+        check(f"{v} shared-load bank conflicts", g(r"bank_conflicts.*op_ld"), ld, f"hw1-asr/{f}", fmt="{:.0f}")
+        check(f"{v} shared-store bank conflicts", g(r"bank_conflicts.*op_st"), st, f"hw1-asr/{f}", fmt="{:.0f}")
+    check("unpadded store conflicts per store instruction (16-way = 15 extra)", 5898240 / 393216, 15, "arithmetic", fmt="{:.0f}")
+
+    section("ASR follow-up: v2 against v3, one job (node is launch-bound: compare variants, not ratios to PyTorch)")
+    check("PyTorch at the start of the kernels job", grab(f"{K}/01_pytorch_start.txt", "Time:", TIME), 1270.4, f"hw1-asr/{K}", fmt="{:.1f}")
+    check("PyTorch at the end of the kernels job", grab(f"{K}/08_pytorch_end.txt", "Time:", TIME), 1235.1, f"hw1-asr/{K}", fmt="{:.1f}")
+    for v, ms in (("v2", 1642.7), ("v2_interleave", 1587.7), ("v3_bk16", 1559.0), ("v3", 1459.3), ("v3_bk32", 1444.3)):
+        check(f"{v} ms per transcription", grab(f"{K}/07_e2e_{v}.txt", "Time:", TIME), ms, f"hw1-asr/{K}/07_e2e_{v}.txt", fmt="{:.1f}")
+        check(f"{v} transcription", "PASS" if any(re.search(r"^Status: PASS", x) for x in log(f"{K}/07_e2e_{v}.txt")) else "FAIL",
+              "PASS", f"hw1-asr/{K}/07_e2e_{v}.txt")
+    for v in ("v2", "v2_interleave", "v2_nopad", "v3", "v3_bk16", "v3_bk32"):
+        lines = log(f"{K}/04_test3_{v}.txt")
+        ok = sum(bool(re.search(r"PASS\s+max_err", x)) for x in lines)
+        bad = sum(bool(re.search(r"FAIL\s+max_err", x)) for x in lines)
+        check(f"{v}: GEMM tests passed / failed", f"{ok} / {bad}", "10 / 0", f"hw1-asr/{K}/04_test3_{v}.txt")
+    for v in ("v3", "v3_bk16", "v3_bk32", "v2_interleave"):
+        for m in ("M150", "M37"):
+            check(f"{v} racecheck hazards, {m}", grab(f"{K}/05_racecheck_{v}_{m}.txt", "RACECHECK SUMMARY", r"(\d+) hazards"),
+                  0, f"hw1-asr/{K}/05_racecheck_{v}_{m}.txt", fmt="{:.0f}")
+    check("v3 (depth 32) saving over v2, same job", 1 - 1444.3 / 1642.7, 0.12, "arithmetic", fmt="{:.2f}")
+    check("interleaved reads saving over v2, same job", 1 - 1587.7 / 1642.7, 0.03, "arithmetic", fmt="{:.2f}")
+
+    section("ASR follow-up: longer clips, one job (assigned = completed tile-32 GEMM, restored 17 Nov)")
+    check("PyTorch at the start of the clips job", grab(f"{C}/02_pytorch_start.txt", "Time:", TIME), 817.6, f"hw1-asr/{C}", fmt="{:.1f}")
+    check("PyTorch at the end of the clips job", grab(f"{C}/04_pytorch_end.txt", "Time:", TIME), 816.2, f"hw1-asr/{C}", fmt="{:.1f}")
+    clips = {"reference": (13, 59, {"pytorch": 801.9, "assigned": 2740.8, "v2": 1604.0, "v3": 1425.4}),
+             "clip_1q": (19, None, {"pytorch": 1120.3, "assigned": 4224.6, "v2": 2315.9, "v3": 2076.9}),
+             "clip_3q": (41, None, {"pytorch": 3617.3, "assigned": 15450.2, "v2": 7381.6, "v3": 6005.6}),
+             "clip_6q": (63, None, {"pytorch": 7612.1, "assigned": 35689.3, "v2": 16071.1, "v3": 12815.4})}
+    for clip, (tokens, _, times) in clips.items():
+        ref_text = next((x for x in log(f"{C}/03_{clip}_pytorch.txt") if x.startswith("Transcription:")), None)
+        for be, ms in times.items():
+            f = f"{C}/03_{clip}_{be}.txt"
+            check(f"{clip} {be} ms per transcription", grab(f, "Time:", TIME), ms, f"hw1-asr/{f}", fmt="{:.1f}")
+            check(f"{clip} {be} tokens", grab(f, r"run 1:", r"\((\d+) tokens\)"), tokens, f"hw1-asr/{f}", fmt="{:.0f}")
+            text = next((x for x in log(f) if x.startswith("Transcription:")), None)
+            check(f"{clip} {be} transcript identical to PyTorch", "yes" if text and text == ref_text else "no", "yes", f"hw1-asr/{f}")
+    for clip, a, b in (("reference", 3.42, 1.78), ("clip_6q", 4.69, 1.68)):
+        t = clips[clip][2]
+        check(f"{clip} assigned / PyTorch", t["assigned"] / t["pytorch"], a, "arithmetic", fmt="{:.2f}")
+        check(f"{clip} v3 / PyTorch", t["v3"] / t["pytorch"], b, "arithmetic", fmt="{:.2f}")
+    t = clips["clip_6q"][2]
+    check("clip_6q: v3 saving over v2", 1 - t["v3"] / t["v2"], 0.20, "arithmetic", fmt="{:.2f}")
+    check("clip_6q: max decoder M (prompt + tokens - 1)",
+          grab(f"{C}/03_clip_6q_pytorch.txt", r"prompt \d+ tokens", r"prompt (\d+) tokens") + 63 - 1, 381, f"hw1-asr/{C}", fmt="{:.0f}")
+
+    section("Final verification of the submitted csrc/ (one job)")
+    lines = log(f"{V}/01_make_test.txt")
+    check("task test cases passed / failed",
+          f"{sum(bool(re.search(r'PASS\s+max_err', x)) for x in lines)} / {sum(bool(re.search(r'FAIL\s+max_err', x)) for x in lines)}",
+          "33 / 0", f"hw1-asr/{V}/01_make_test.txt")
+    check("ms per transcription", grab(f"{V}/02_run_profile.txt", "Time:", TIME), 2716.1, f"hw1-asr/{V}", fmt="{:.1f}")
+    check("transcription status", "PASS" if any(x.startswith("Status: PASS") for x in log(f"{V}/02_run_profile.txt")) else "FAIL",
+          "PASS", f"hw1-asr/{V}/02_run_profile.txt")
+    check("racecheck hazards on the task 3 test", grab(f"{V}/03_racecheck_task3.txt", "RACECHECK SUMMARY", r"(\d+) hazards"),
+          0, f"hw1-asr/{V}", fmt="{:.0f}")
+
+
+def rag_answer_length():
+    """Answer-length follow-up (ANALYSIS_PLAN_answer_length.md), rag/results/phase5/answer_length."""
+    section("RAG follow-up: answer length on Development (one session, interleaved)")
+    A = "phase5/answer_length"
+    rows = {a: [r for r in jsonl(f"{A}/{a}/answers.jsonl")] for a in ("k5", "k2", "k5_cap150", "k5_short")}
+    first = min(r["query_index"] for v in rows.values() for r in v)
+    rows = {a: [r for r in v if r["query_index"] != first] for a, v in rows.items()}
+    med = {a: median(r["timing"]["generation_ms"] for r in v) for a, v in rows.items()}
+    src = f"rag/results/{A}/*/answers.jsonl"
+    for a, tok, ms in (("k5_short", 83, 1484), ("k5_cap150", 150, 2564)):
+        check(f"{a} median answer tokens", median(r["answer_tokens"] for r in rows[a]), tok, src, fmt="{:.0f}")
+        check(f"{a} median generation ms", med[a], ms, src, fmt="{:.0f}")
+    check("k5_cap150 answers cut off at the cap", sum(r["finish_reason"] == "length" for r in rows["k5_cap150"]), 84, src, fmt="{:.0f}")
+    check("k5_short answers cut off", sum(r["finish_reason"] == "length" for r in rows["k5_short"]), 0, src, fmt="{:.0f}")
+    for a, want in (("k5", 2.06), ("k5_cap150", 1.03), ("k5_short", 0.59)):
+        check(f"{a} median time / k2 re-run median time", med[a] / med["k2"], want, src, fmt="{:.2f}")
+    dsc, _, shared, _ = load_dev()
+    S = sorted(shared)
+    for a, w5, s5, w2 in (("k5_short", -.020, .027, -.023), ("k5_cap150", -.039, .024, -.041)):
+        new = {r["query_id"]: float(r["normalised_answer_score"])
+               for r in jsonl(f"{A}/{a}/judge/answer_judge_per_query.jsonl")}
+        qs = [q for q in S if q in new]
+        d5 = [new[q] - dsc["k5"][q] for q in qs]
+        d2 = [new[q] - dsc["k2"][q] for q in qs]
+        s = f"rag/results/{A}/{a}/judge"
+        check(f"{a} minus saved k5: n", len(d5), 123, s, fmt="{:.0f}")
+        check(f"{a} minus saved k5: mean", mean(d5), w5, s)
+        check(f"{a} minus saved k5: SE", se(d5), s5, s)
+        check(f"{a} minus saved k2: mean", mean(d2), w2, s)
+
+
 def derivations():
     section("Derived statements and appendix arithmetic")
     score = lambda dense_rank, bm25_rank: 0.95 / (60 + dense_rank) + 0.05 / (60 + bm25_rank)
@@ -696,7 +822,7 @@ def main():
     print("Numbers quoted in the report, recomputed from saved files")
     print(f"Repository root: {ROOT.name}")
     for fn in (rag_dev, rag_rerank, rag_practice_tuning, rag_practice_minilm, rag_cost, rag_practice_depth,
-               rag_followup_saved, asr_table, asr_rope_reduce, asr_gemm, asr_attention, asr_v2, asr_blocks, derivations):
+               rag_followup_saved, rag_answer_length, asr_table, asr_rope_reduce, asr_gemm, asr_attention, asr_v2, asr_blocks, asr_followup, derivations):
         block(fn)
     print("\n=== SUMMARY ===")
     print(f"values checked: {COUNT[0]}")
