@@ -1,56 +1,64 @@
 # Machine Learning Systems — Supplementary Code
 
-**INFR11269 · University of Edinburgh · Autumn 2026/27**
+**INFR11269 · University of Edinburgh · 2026/27**
 
-This repository combines the supplied coursework framework with completed CUDA automatic speech recognition (ASR) tasks, retrieval-augmented generation (RAG) investigations and their recorded evidence. **All course-provided CUDA tutorials, framework files and report templates are retained.**
-
+This repository contains the supplied coursework framework, completed CUDA automatic speech recognition (ASR) kernels, retrieval-augmented generation (RAG) investigations, and supporting experimental evidence. Course-provided CUDA tutorials, tests, and report resources are retained.
 
 ## Start here
 
-- [Experiment index](EXPERIMENT_INDEX.md) — an annotated guide to sources, investigations and supporting results.
-- [Assigned CUDA implementations and verification](hw1-asr/FINAL_CUDA.md) — current task files and the 17 November check.
-- [RAG extensions guide](rag/extensions/README.md) — retrieval depth, reranking, answer-length and latency experiments.
-- [Report resources](report/README.md) — the official LaTeX template and checker. The completed report will be added later.
-
-## Repository map
-
-| Area | Files |
+| Area | What to inspect |
 |---|---|
-| Original CUDA tutorials (retained) | [cuda-tutorial/](cuda-tutorial/) |
-| Four assigned CUDA kernel tasks | [hw1-asr/csrc/](hw1-asr/csrc/) |
-| Alternative CUDA source and new GEMM investigation | [hw1-asr/extensions/](hw1-asr/extensions/) |
-| ASR test / profiling evidence | [hw1-asr/results/](hw1-asr/results/) |
-| Audio-to-answer RAG baseline | [rag/](rag/) |
-| Retrieval-depth, hybrid reranking, MiniLM and evaluation code | [rag/extensions/](rag/extensions/) |
-| Saved query, judge and systems results | [rag/results/](rag/results/) |
-| Report template, checker and earlier-draft number audit | [report/](report/) |
-| Experiment-by-experiment index | [EXPERIMENT_INDEX.md](EXPERIMENT_INDEX.md) |
+| [Experiment index](EXPERIMENT_INDEX.md) | Overview of experiments and links to implementation and evidence |
+| [CUDA task source](hw1-asr/csrc/) | Assigned RoPE, reductions, tiled GEMM, and attention |
+| [CUDA extensions](hw1-asr/extensions/README.md) | Register-tiled GEMM variants, benchmarks, profiling, and checks |
+| [CUDA verification](hw1-asr/FINAL_CUDA.md) | Test results, performance measurements, and reproduction commands |
+| [RAG extensions](rag/extensions/README.md) | Retrieval depth, reranking, answer length, and evaluation |
+| [Report resources](report/README.md) | LaTeX source/template, checking tools, and number-audit script |
 
-## CUDA investigations
+## Repository structure
 
-The five standard `hw1-asr/csrc/` task files are the **completed assigned kernels** (Tasks 1-4), including the completed tile-32 shared-memory GEMM in `csrc/task3_gemm.cu`. This is the code the coursework tests (`make test`) and the report's "original GEMM" rows describe. An earlier draft of this branch had replaced `csrc/task3_gemm.cu` with the register-tiled GEMM (v2, BK=32); that replacement has been **reverted** (17 November) so the task file is the completed task again.
+| Path | Contents |
+|---|---|
+| [`cuda-tutorial/`](cuda-tutorial/) | Supplied CUDA tutorials |
+| [`hw1-asr/csrc/`](hw1-asr/csrc/) | Assigned CUDA task implementations |
+| [`hw1-asr/extensions/`](hw1-asr/extensions/) | Alternative GEMM implementations, benchmarking code, and recorded experiments |
+| [`hw1-asr/results/`](hw1-asr/results/) | Kernel-level testing and ASR profiling output |
+| [`rag/src/`](rag/src/) | RAG pipeline implementation |
+| [`rag/extensions/`](rag/extensions/) | Investigation-specific scripts and evaluation code |
+| [`rag/results/`](rag/results/) | Retrieval, answer generation, judging, and latency results |
+| [`report/`](report/) | Official report resources and numerical audit |
 
-The register-tiled GEMMs are **extensions**, built separately and never replacing the task file: `hw1-asr/extensions/gemm_v2/` (4x4 per thread, BK=16, tile height by shape) and `hw1-asr/extensions/gemm_v3/` (register block and tile depth chosen by shape). Their tests, racecheck and same-session timings are in `hw1-asr/extensions/results/` (block sweep: `gemm_blocks_3716786/`; v3, M sweep and longer clips: `followup_kernels_*` and `followup_clips_*`). Final validation of the assigned task files was completed on **17 November 2026** in `hw1-asr/extensions/results/verify_submission_3727463/`: **33/33 tests PASS**, exact ASR transcript **PASS**, and **0 racecheck hazards** in the three small GEMM cases tested. The assigned-kernel profile recorded **2716.1 ± 9.1 ms/transcription** on RTX 2080 Ti. The register-tiled GEMMs remain separate extensions.
+## CUDA / ASR investigation
 
-**Distinguish the CUDA measurement snapshots.** [The 17 November verification](hw1-asr/extensions/results/verify_submission_3727463/summary.txt) is for the **currently assigned tile-32 GEMM** (33/33 tests, transcription PASS, **2716.1 ± 9.1 ms**). The earlier [`submission_profile.log`](hw1-asr/results/submission_profile.log) (**1468.6 ± 2.1 ms**) and [paired PyTorch reference](hw1-asr/results/submission_pytorch_baseline.log) (**1081.1 ± 0.8 ms**) are from an **older register-tiled BK32 draft in the default task path**, not from the current assigned GEMM. Separate controlled extension comparisons are retained in [`hw1-asr/extensions/results/`](hw1-asr/extensions/results/).
+The assigned task implementation in [`hw1-asr/csrc/`](hw1-asr/csrc/) uses a **tile-32 shared-memory GEMM** alongside custom RoPE, reductions, and attention kernels. The [register-tiled GEMM v2](hw1-asr/extensions/gemm_v2/task3_gemm.cu) and [v3](hw1-asr/extensions/gemm_v3/task3_gemm.cu) are **separate experimental implementations**.
 
-## RAG investigations
+For reproducibility, the saved results identify the exact kernel configuration being tested:
 
-- Dense retrieval baseline, context-depth k=2/5/10/20, reference judged-answer evaluation, and additional Practice depth replication.
-- Practice-tuned Hybrid BM25/weighted RRF (dense weight 0.95) and pretrained MiniLM cross-encoder (top 100 -> top 5).
-- Complete Development retrieval (125 queries) and common judged comparisons (123 queries). Neither reranker established an overall judged-answer quality gain relative to k5 in the recorded paired analysis.
-- The matched-node reranking-only test: 369 calls per method on the same RTX 2080 Ti node; Hybrid CPU mean 22.09 ms versus MiniLM GPU mean 280.52 ms (12.70× observed latency ratio). This excludes generator and upstream stages.
-- The Practice depth replication: for k2 minus k5, n=347 mean -0.00768, one-sided 95% lower bound -0.03393, so non-inferiority at the prespecified 0.03 margin was **not established on Practice**; pooled n=470 lower bound -0.02683 is supportive, not an independent confirmatory outcome.
-- The answer-length study and smoke test are retained in [`phase5/answer_length/`](rag/results/phase5/answer_length/) and [`phase5/answer_length_smoke/`](rag/results/phase5/answer_length_smoke/), respectively.
-- See `rag/results/` and `report/report_numbers.txt`: the saved file records an **audit of an earlier report draft** (not yet re-run against a final report).
+| Configuration | Evidence | Result |
+|---|---|---|
+| Assigned CUDA task files, including tile-32 GEMM | [Task verification](hw1-asr/extensions/results/verify_submission_3727463/summary.txt) | **33/33 tests PASS**, transcription PASS, **2716.1 ± 9.1 ms/transcription**; small-case GEMM racecheck: **0 hazards** |
+| Register-tiled BK32 CUDA configuration | [ASR profile](hw1-asr/results/submission_profile.log) | Transcription PASS, **1468.6 ± 2.1 ms/transcription** |
+| PyTorch reference measured with the BK32 configuration | [PyTorch profile](hw1-asr/results/submission_pytorch_baseline.log) | Transcription PASS, **1081.1 ± 0.8 ms/transcription** |
 
-These are **distinct experiments and timing protocols**; do not mix the two sets of ASR benchmark times as if they were a controlled paired run.
+All figures are from recorded RTX 2080 Ti experiments. The register-tiled BK32 profile is **not a measurement of the assigned tile-32 task files**. Only compare times measured under compatible workloads and benchmark conditions. Controlled v2/v3 comparisons and longer-clip experiments are indexed in [`hw1-asr/extensions/README.md`](hw1-asr/extensions/README.md).
 
-The bracketed note in `rag/extensions/ANALYSIS_PLAN_practice_depth.md` is a leftover drafting prompt; the file is unchanged since it was committed.
+## RAG investigation
 
-## Reproduction and data handling
+The RAG work evaluates how retrieval depth, evidence ranking, and generation settings affect answer quality and system cost.
 
-The original framework is [ed-aisys/edin-mls-26-autumn](https://github.com/ed-aisys/edin-mls-26-autumn). Start from [hw1-asr/README.md](hw1-asr/README.md) and [rag/README.md](rag/README.md). The course's `rag-assets.zip` is managed via Git LFS; install it as the course describes. The corpus, model weights and ELM credentials are **not** self-contained in this source tree. Configure each person's ELM key **locally** in ignored `rag/.env`; never commit an actual key. A pretrained external MiniLM checkpoint was used in research and needs proper acknowledgement and final course-policy review.
+- **Retrieval depth:** dense top-k retrieval and answer comparisons for k=2, 5, 10, and 20.
+- **Reranking:** Hybrid BM25/dense fusion and a pretrained MiniLM cross-encoder, both reranking a dense candidate pool.
+- **Quality analysis:** paired judged answers across **123 common Development queries**; neither reranker established an overall answer-quality improvement in this comparison.
+- **Systems cost:** matched reranking-only benchmarks (369 calls per method) measured **22.09 ms** mean for Hybrid CPU and **280.52 ms** for MiniLM GPU. These are stage-only measurements, not full-pipeline latency.
+- **Practice replication:** the prespecified k=2 versus k=5 non-inferiority comparison did **not** establish non-inferiority at the 0.03 margin.
+- **Answer length:** saved generation-length and quality/cost investigations, including separate full and smoke-test records.
 
-The report must use the supplied LaTeX/Overleaf template without changing its style. The six-page main-body limit excludes references and optional appendices; essential arguments must fit in the main body. Complete the template's explicit AI declaration and group-information section.
+See the [RAG experiment guide](rag/extensions/README.md) and [experiment index](EXPERIMENT_INDEX.md) for the relevant code and result files.
 
+## Reproduction and data dependencies
+
+Start with [`hw1-asr/README.md`](hw1-asr/README.md) and [`rag/README.md`](rag/README.md). The source tree includes the Git LFS pointer for `rag-assets.zip`, not the extracted corpus, recordings, embeddings, or model weights. Install the supplied course assets using the documented setup process.
+
+RAG generation requires locally configured ELM access, and neural reranking uses an external pretrained MiniLM checkpoint. Do not commit API keys or local credential files.
+
+The [report directory](report/) contains the official LaTeX resources, format checker, and [`report_numbers.py`](report/report_numbers.py). The saved [`report_numbers.txt`](report/report_numbers.txt) is an existing numerical audit and should be regenerated against the final report to establish consistency.

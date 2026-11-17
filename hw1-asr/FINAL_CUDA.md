@@ -1,43 +1,51 @@
-# CUDA hand-in: what is submitted and how it is validated
+# CUDA task implementations and verification
 
-**Updated:** 17 November 2026. **Branch:** `MLS-Submission-Draft`.
+## Assigned task files
 
-## Files to hand in
-
-The five task source files in `hw1-asr/csrc/` are the completed assigned kernels:
+The files in `hw1-asr/csrc/` implement the required CUDA operations:
 
 | File | Implementation |
 |---|---|
 | `csrc/task1_rope.cu` | RoPE, one thread per element pair, 256 threads per block |
-| `csrc/task2_reduce.cuh`, `csrc/task2_reduce.cu` | warp-shuffle + shared-memory reductions (RMSNorm, LayerNorm, stable softmax), 256 threads |
-| `csrc/task3_gemm.cu` | **completed tile-32 shared-memory GEMM** (one output per thread, padded weight tile, fused bias/GELU) |
-| `csrc/task4_attention.cu` | streaming online-softmax attention with causal masking and GQA, 16 warps |
+| `csrc/task2_reduce.cuh`, `csrc/task2_reduce.cu` | Warp-shuffle and shared-memory reductions for RMSNorm, LayerNorm, and stable softmax |
+| `csrc/task3_gemm.cu` | **Tile-32 shared-memory GEMM**, one output per thread, padded weight tile, fused bias/GELU |
+| `csrc/task4_attention.cu` | Streaming online-softmax attention with causal masking and grouped-query attention |
 
-An earlier draft of this branch (14 November) replaced `csrc/task3_gemm.cu` with the register-tiled GEMM v2 at BK=32. That was **reverted on 17 November**: the task file is the completed task, byte for byte the version behind `results/final_test.txt` (33/33) and `results/final_profile.txt` (2,689.8 ms).
+The assigned `task3_gemm.cu` is **not** the register-tiled extension. The distinction is relevant when reproducing the reported benchmark results.
 
-## Extensions (built separately, never replacing a task file)
+## Experimental GEMM extensions
 
-| Folder | What it is |
+| Path | Implementation |
 |---|---|
-| `extensions/gemm_v2/` | register-tiled GEMM, 4x4 outputs per thread, BK=16, 64- or 32-row tiles by shape |
-| `extensions/gemm_v3/` | the same kernel with the register block and tile depth as template parameters: 8x4 for M >= 128, 4x4 below; BK set at compile time (`-DV3_BK_ENC`, `-DV3_BK_DEC`) |
+| [`extensions/gemm_v2/`](extensions/gemm_v2/) | Register-tiled GEMM: 4×4 outputs per thread, BK=16, shape-dependent tile height |
+| [`extensions/gemm_v3/`](extensions/gemm_v3/) | Parameterised register tiling: 8×4 for larger M, 4×4 for smaller M, configurable BK |
+| [`extensions/variant_b/`](extensions/variant_b/) | Alternative set of task-source implementations retained for comparison |
 
-Every other file in these folders is a symbolic link to `csrc/`, so an extension build differs from the task build only in the GEMM. Build and run one with:
+Each register-tiled extension is built separately with the supplied Makefile and its own output directory; it does not replace the assigned task source. For example, from `hw1-asr/` on an RTX 2080 Ti session:
 
 ```bash
 make SRC=extensions/gemm_v3 BUILD=/tmp/$USER/build_v3 lib
 ASR_LIB=/tmp/$USER/build_v3/libasr_kernels.so ./run.sh --profile
 ```
 
-Evidence: `extensions/results/gemm_blocks_3716786/` (block-size sweep, one job), `extensions/results/followup_kernels_*/` (M sweep, profiler counters, v2 against v3: tests, racecheck on both dispatch paths, timing) and `extensions/results/followup_clips_*/` (longer clips). Compare timings only within one job.
+## Verification and measurements
 
-## Final validation of the task files
+| Configuration | Location | Result |
+|---|---|---|
+| Assigned task sources (tile-32 GEMM) | [`extensions/results/verify_submission_3727463/`](extensions/results/verify_submission_3727463/) | **33/33 tests PASS**, transcription PASS; **2716.1 ± 9.1 ms/transcription**, 8.56 GiB peak GPU memory; **0 hazards** in the three small GEMM racecheck cases |
+| Register-tiled BK32 configuration in the ASR framework | [`results/submission_profile.log`](results/submission_profile.log) | Transcription PASS; **1468.6 ± 2.1 ms/transcription** |
+| PyTorch-only reference, paired with the BK32 test | [`results/submission_pytorch_baseline.log`](results/submission_pytorch_baseline.log) | Transcription PASS; **1081.1 ± 0.8 ms/transcription** |
 
-From `hw1-asr` on the head node:
+The assigned-kernel result and register-tiled BK32 result are **different kernel configurations and runs**. Treat each set of timings according to its own recorded benchmark protocol; do not infer a direct paired improvement across sessions.
+
+Additional controlled comparisons are in [`extensions/results/gemm_blocks_3716786/`](extensions/results/gemm_blocks_3716786/), [`extensions/results/followup_kernels_3727089/`](extensions/results/followup_kernels_3727089/) and [`extensions/results/followup_clips_3727464/`](extensions/results/followup_clips_3727464/).
+
+## Reproducing assigned task validation
+
+From `hw1-asr/` on the DICE login node:
 
 ```bash
 sbatch extensions/run_verify_submission.sbatch
-cat extensions/results/verify_submission_JOBID/summary.txt
 ```
 
-One job, one GPU: GPU identity, a clean `make test` (expect 4 + 11 + 10 + 8 = 33 PASS), `./run.sh --profile` (expect Status PASS), and GEMM racecheck on the test binary.
+The job runs on one GPU and records GPU identity, a clean `make test` of the four task groups (4 + 11 + 10 + 8 = 33), full-ASR transcription and the small-case GEMM racecheck. Consult the resulting `extensions/results/verify_submission_JOBID/` output and the supplied Makefile/README for environment setup.
