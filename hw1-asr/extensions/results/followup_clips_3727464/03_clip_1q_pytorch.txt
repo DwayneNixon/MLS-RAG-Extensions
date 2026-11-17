@@ -1,0 +1,29 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=torch  reduce=torch  gemm=torch  attention=torch  provided=torch
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 18.6 s
+Audio: 5.62 s, mel features (1, 128, 3000), prompt 85 tokens
+  run 1:   1119.5 ms  (19 tokens)
+  run 2:   1120.3 ms  (19 tokens)
+  run 3:   1121.1 ms  (19 tokens)
+
+GPU time per operation, one transcription (1339.0 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       torch       3939      883.9   66.0%
+  attention    torch        564      316.2   23.6%
+  rope         torch        564       64.0    4.8%
+  rmsnorm      torch       1083       59.6    4.5%
+  silu_mul     torch        532       10.4    0.8%
+  layernorm    torch         65        2.7    0.2%
+  embedding    torch         19        1.3    0.1%
+  softmax      torch         19        0.5    0.0%
+  im2col       torch          2        0.3    0.0%
+
+Time: 1120.3 ms per transcription (+/- 0.7 ms), 59.0 ms per token
+Peak GPU memory: 8.88 GiB
+Transcription: What is a typical amount of money to spend weekly on food, entertainment, and clothing?
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 12.5%
+Status: FAIL
+exit status: 1

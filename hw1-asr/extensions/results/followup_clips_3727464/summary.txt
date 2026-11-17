@@ -1,0 +1,26 @@
+Follow-up summary (clips), folder followup_clips_3727464
+PyTorch at start 817.6 ms, at end 816.2 ms (drift -0.2%)
+clip_1q: 5.62 s, 1 Practice questions ['q_8356061eec1fcfcf']
+clip_3q: 14.85 s, 3 Practice questions ['q_90caf2950d97119c', 'q_8e0fce53518e232d', 'q_fe04f75c6db480fe']
+clip_6q: 24.35 s, 4 Practice questions ['q_d1397ae30111620c', 'q_7e76951cd9ad079f', 'q_127367f6b97a8759', 'q_ca14458c72687732']
+
+clip       backend    audio s  tokens  max M        ms x PyTorch  GEMM %  same text as PyTorch
+reference  pytorch       3.50      13     71     801.9      1.00    60.0  yes
+reference  assigned      3.50      13     71    2740.8      3.42    89.4  yes
+reference  v2            3.50      13     71    1604.0      2.00    80.8  yes
+reference  v3            3.50      13     71    1425.4      1.78    77.8  yes
+clip_1q    pytorch       5.62      19    103    1120.3      1.00    66.0  yes
+clip_1q    assigned      5.62      19    103    4224.6      3.77    91.0  yes
+clip_1q    v2            5.62      19    103    2315.9      2.07    80.3  yes
+clip_1q    v3            5.62      19    103    2076.9      1.85    78.1  yes
+clip_3q    pytorch      14.85      41    240    3617.3      1.00    84.9  yes
+clip_3q    assigned     14.85      41    240   15450.2      4.27    95.8  yes
+clip_3q    v2           14.85      41    240    7381.6      2.04    90.1  yes
+clip_3q    v3           14.85      41    240    6005.6      1.66    87.0  yes
+clip_6q    pytorch      24.35      63    381    7612.1      1.00    84.6  yes
+clip_6q    assigned     24.35      63    381   35689.3      4.69    96.0  yes
+clip_6q    v2           24.35      63    381   16071.1      2.11    90.6  yes
+clip_6q    v3           24.35      63    381   12815.4      1.68    87.7  yes
+
+max M = prompt tokens + generated tokens - 1: the decoder recomputes the whole
+sequence each step (no key/value cache), so its last step multiplies this many rows.

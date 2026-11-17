@@ -1,0 +1,11 @@
+Verification of csrc/ (2026-11-17T16:30:41+00:00)
+test cases PASS: 33, FAIL: 0
+Task 1 (RoPE): ALL PASS
+Task 2 (reductions): ALL PASS
+Task 3 (tiled GEMM): ALL PASS
+Task 4 (attention): ALL PASS
+Time: 2716.1 ms per transcription (+/- 9.1 ms), 208.9 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: Concord returned to its place amidst the tents.
+Status: PASS
+========= RACECHECK SUMMARY: 0 hazards displayed (0 errors, 0 warnings)

@@ -1,0 +1,29 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=torch  reduce=torch  gemm=torch  attention=torch  provided=torch
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 20.9 s
+Audio: 3.50 s, mel features (1, 128, 3000), prompt 59 tokens
+  run 1:    825.0 ms  (13 tokens)
+  run 2:    812.7 ms  (13 tokens)
+  run 3:    810.9 ms  (13 tokens)
+
+GPU time per operation, one transcription (955.8 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       torch       2757      601.9   63.0%
+  attention    torch        396      225.1   23.5%
+  rope         torch        396       71.9    7.5%
+  rmsnorm      torch        741       46.7    4.9%
+  silu_mul     torch        364        6.1    0.6%
+  layernorm    torch         65        2.8    0.3%
+  embedding    torch         13        0.8    0.1%
+  softmax      torch         13        0.4    0.0%
+  im2col       torch          2        0.3    0.0%
+
+Time: 816.2 ms per transcription (+/- 6.3 ms), 62.8 ms per token
+Peak GPU memory: 8.88 GiB
+Transcription: Concord returned to its place amidst the tents.
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 100.0%
+Status: PASS
+exit status: 0

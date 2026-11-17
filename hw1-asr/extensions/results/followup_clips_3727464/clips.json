@@ -1,0 +1,28 @@
+[
+  {
+    "clip": "clip_1q",
+    "questions": [
+      "q_8356061eec1fcfcf"
+    ],
+    "seconds": 5.62
+  },
+  {
+    "clip": "clip_3q",
+    "questions": [
+      "q_90caf2950d97119c",
+      "q_8e0fce53518e232d",
+      "q_fe04f75c6db480fe"
+    ],
+    "seconds": 14.85
+  },
+  {
+    "clip": "clip_6q",
+    "questions": [
+      "q_d1397ae30111620c",
+      "q_7e76951cd9ad079f",
+      "q_127367f6b97a8759",
+      "q_ca14458c72687732"
+    ],
+    "seconds": 24.35
+  }
+]

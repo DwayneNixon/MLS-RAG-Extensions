@@ -1,0 +1,30 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=cuda  reduce=cuda  gemm=cuda  attention=cuda  provided=cuda
+Library: /tmp/UUN/followup_3727464/v3/build/libasr_kernels.so
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 16.0 s
+Audio: 5.62 s, mel features (1, 128, 3000), prompt 85 tokens
+  run 1:   2073.4 ms  (19 tokens)
+  run 2:   2075.5 ms  (19 tokens)
+  run 3:   2081.7 ms  (19 tokens)
+
+GPU time per operation, one transcription (2224.6 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       cuda        3939     1736.4   78.1%
+  attention    cuda         564      327.2   14.7%
+  rope         cuda         564      128.3    5.8%
+  rmsnorm      cuda        1083       15.4    0.7%
+  silu_mul     cuda         532       10.3    0.5%
+  layernorm    cuda          65        2.9    0.1%
+  softmax      cuda          19        2.6    0.1%
+  embedding    cuda          19        1.4    0.1%
+  im2col       cuda           2        0.2    0.0%
+
+Time: 2076.9 ms per transcription (+/- 3.5 ms), 109.3 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: What is a typical amount of money to spend weekly on food, entertainment, and clothing?
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 12.5%
+Status: FAIL
+exit status: 1

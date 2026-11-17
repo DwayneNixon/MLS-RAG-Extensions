@@ -1,0 +1,30 @@
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+GPU: NVIDIA GeForce RTX 2080 Ti (sm_75)
+Kernels: rope=cuda  reduce=cuda  gemm=cuda  attention=cuda  provided=cuda
+Library: /home/UUN/edin-mls-26-autumn/hw1-asr/build/sm_75/libasr_kernels.so
+Loading the model (about 9 GB of float32 weights)...
+Loaded in 17.9 s
+Audio: 14.85 s, mel features (1, 128, 3000), prompt 200 tokens
+  run 1:  15342.3 ms  (41 tokens)
+  run 2:  15468.8 ms  (41 tokens)
+  run 3:  15539.4 ms  (41 tokens)
+
+GPU time per operation, one transcription (15600.7 ms in kernels):
+  operation    runs on    calls   total ms   share
+  linear       cuda        8273    14952.3   95.8%
+  attention    cuda        1180      565.9    3.6%
+  silu_mul     cuda        1148       34.2    0.2%
+  rmsnorm      cuda        2337       23.3    0.1%
+  rope         cuda        1180       12.0    0.1%
+  softmax      cuda          41        5.5    0.0%
+  embedding    cuda          41        4.8    0.0%
+  layernorm    cuda          65        2.5    0.0%
+  im2col       cuda           2        0.2    0.0%
+
+Time: 15450.2 ms per transcription (+/- 81.6 ms), 376.8 ms per token
+Peak GPU memory: 8.56 GiB
+Transcription: How do I file taxes for the sale of stocks from Form 1099-B? What factors do you consider when speculating effectively? What are the advantages and disadvantages of structured deposits?
+Expected:      Concord returned to its place amidst the tents
+Accuracy: 12.5%
+Status: FAIL
+exit status: 1
